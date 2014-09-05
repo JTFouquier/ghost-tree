@@ -18,6 +18,9 @@ Traceback (most recent call last):
     curr_node.Name = t
 AttributeError: 'NoneType' object has no attribute 'Name'
 
+9/5/14-- I think I know what I did... will fix soon
+
+
 
 
 
