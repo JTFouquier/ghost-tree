@@ -68,48 +68,25 @@ os.system("make_phylogeny.py -i FungiOnlySilvaAlignment_fixed.fasta -o rep_phylo
 
 ###STEP 2
 
+#Way bulky -> need to simplify with dictionaries:
+#accession #, taxonomy & fasta sequence
+
 f1in = "99_otu_taxonomy.txt"
 
-#different levels of taxonomy-can remove this
 f1in = open(f1in,"U")
-klist = []
-plist = []
-clist = []
-olist = []
-flist = []
 glist = []
-slist = []
 for line in f1in:
     line = line[8:]
     line = line.strip()
     line = line.split(";")
-    k = line[0]
-    p = line[1]
-    c = line[2]
-    o = line[3]
-    f = line[4]
     g = line[5]
-    s = line[6]
-    if k not in klist:
-        klist.append(k)
-    if p not in plist:
-        plist.append(p)
-    if c not in clist:
-        clist.append(c)
-    if o not in olist:
-        olist.append(o)
-    if f not in flist:
-        flist.append(f)
     if g not in glist:
         glist.append(g)
-    if s not in slist:
-        slist.append(s)
 f1in.close() 
 
-#this code needs work! Dictionary is much more elegant
 def SelectTaxonomy(f1in,taxon):
     f1in = open(f1in,"U")
-    f1out = open(taxon+"___smalltaxonomy.txt","w")
+    f1out = open(taxon+"_smalltaxonomy.txt","w")
     for line in f1in:
         if re.search(taxon,line):
             f1out.write(line)
@@ -138,7 +115,7 @@ def IDlistfromRepSet(f1in,repset,taxon):
 
 def ExtractMySeqs(myrepset,myseqIDs,taxon):
     myseqIDlist = []
-    myseqFastaFile = open(taxon+"___seqs.fasta","w")  #ONLY FILE WORTH KEEPING!!!!  
+    myseqFastaFile = open(taxon+"_seqs.fasta","w") 
     myseqIDs = seqIDsfromRepSetList
     myrepset = open(myrepset,"U") 
     count=0
@@ -188,45 +165,49 @@ for i in glist:
     taxon = i
     myrepset = "rep_set1.fna"
     SelectTaxonomy("99_otu_taxonomy.txt", taxon)
-    IDlistfromRepSet(taxon+"___smalltaxonomy.txt",myrepset,taxon)
+    IDlistfromRepSet(taxon+"_smalltaxonomy.txt",myrepset,taxon)
     myseqIDs = seqIDsfromRepSetList
     if myseqIDs == []:
-        os.remove(taxon+"___smalltaxonomy.txt")
+        os.remove(taxon+"_smalltaxonomy.txt")
         continue
     ExtractMySeqs(myrepset,myseqIDs,taxon)
-    os.remove(taxon+"___smalltaxonomy.txt")    
+    os.remove(taxon+"_smalltaxonomy.txt")    
 
 cwd = os.getcwd()
 for file in os.listdir(cwd):
     if os.path.getsize(file) < 1:
         os.remove(file)
 
+#Muscle -> mini ITS alignments
 cwd = os.getcwd()
 for file in os.listdir(cwd):
-    if file.endswith("___aligned.fasta"):
+    if file.endswith("_aligned.fasta"):
         continue
-    if file.endswith("___seqs.fasta"):
+    if file.endswith("_seqs.fasta"):
         inputname = str(file)
         file = file.split(".")
         name = file[0]
-        os.system("muscle -in "+inputname+" -out " +name+ "___aligned.fasta -quiet -maxiters 2 -diags1")  
+        os.system("muscle -in "+inputname+" -out " +name+ "_aligned.fasta -quiet -maxiters 2 -diags1")
 
+#FastTree -> mini ITS trees
+cwd = os.getcwd()
 for file in os.listdir(cwd):
-    if file.endswith("___tree.nwk"):
+    if file.endswith("_tree.nwk"):
         continue
-    if file.endswith("___aligned.fasta"):
+    if file.endswith("_aligned.fasta"):
         inputname = str(file)
         file = file.split(".")
         name = file[0]
-        os.system("FastTree -nt "+inputname+" > " +name+ "___tree.nwk -quiet")
+        os.system("FastTree -nt -quiet "+inputname+" > " +name+ "_tree.nwk")
         
 #Open the 18S backbone tree file (newick format)
 fin= "rep_phylo18Sbackbone.nwk"
 with open (fin, "r") as silvafile:
     finaltext=silvafile.read()
 
+#insert ITS-1 mini trees into 18S backbone
 for file in os.listdir(cwd):
-    if file.endswith("___tree.nwk"):
+    if file.endswith("_tree.nwk"):
         genusname = str(file)
         genusname = genusname.split("_")
         genusname = genusname[2]
@@ -236,7 +217,7 @@ for file in os.listdir(cwd):
         finaltext = finaltext.replace(genusname,ITS1text)
 
 fout = open("082414_HybridTree.nwk","w")
-finaltext = finaltext.replace(";","")  #remove all semicolons from file to ensure only @end
+finaltext = finaltext.replace(";","")
 finaltext = finaltext.replace("\n","")
 finaltext+= ";"
 fout.write(finaltext)
@@ -244,14 +225,13 @@ fout.close()
 
 os.system("filter_tree.py -i 082414_HybridTree.nwk -f rep_set1.fna -o 082414_HybridTree_pruned.nwk") 
 
-#uncomment to hide all these files
 """
 for file in os.listdir(cwd):
-    if file.endswith("___tree.nwk"):
+    if file.endswith("_tree.nwk"):
         os.remove(file)
-    if file.endswith("___aligned.fasta"):
+    if file.endswith("_aligned.fasta"):
         os.remove(file)
-    if file.endswith("___seqs.fasta"):
+    if file.endswith("_seqs.fasta"):
         os.remove(file)
         
 os.remove("rep_phylo18Sbackbone.nwk")
