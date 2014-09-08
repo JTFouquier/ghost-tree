@@ -21,7 +21,7 @@ It uses Muscle and Fasttree from QIIME
 And that is it.
 <p>
 Known issues/questions:
-  9/7/14
+  9/7/14<p>
     JF --> use dictionary for organizing OTUs into genera files (this section is very messy)<p>
     JF --> make root to tip calculation/warnings. <p> 
     Q: Any reason to use different levels of taxonomy? currently genus/species tree.  Anything else ever used? <p>
