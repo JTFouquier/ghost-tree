@@ -24,6 +24,7 @@ Known issues/questions:
   9/7/14<p>
     JF --> use dictionary for organizing OTUs into genera files (this section is very messy)<p>
     JF --> make root to tip calculation/warnings. <p> 
+    JF --> remove dependency on Qiime... fix fasta files, make_phylogeny, etc. <p>
     Q: Any reason to use different levels of taxonomy? currently genus/species tree.  Anything else ever used? <p>
     Q: Do people want the option to view their files (the seq file, alignment or tree). i.e. they want to look at the OTUs in            Phoma or Cladosporium.  (can currently uncomment or comment this feature) <p>
     Q: SILVA is very messy. It is not organized as well as UNITE. i.e. sometimes when looking for a genus (by slicing the 2nd to         last item in the list) it will grab a family.  So I added a check for that.  <p>
