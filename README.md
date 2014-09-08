@@ -3,11 +3,35 @@ hybrid_tree
 
 This is a two genetic marker phylogenetic tree: hybrid tree
 
-8/25/14: I combined many pieces of code -> 1 hybrid tree script
-  
-9/6/14: it works again after minor bug I created
+Installation instructions:
 
-Stll need to do Git tutorials...
+Need:
+  1)repset of ITS seqs (I used UNITE)
+  2)taxonomy file
+  --above are in Google Drive (will share)
+  3)Silva 18S file:
+  http://www.arb-silva.de/fileadmin/silva_databases/release_115/Exports/SSURef_NR99_115_tax_silva_full_align_trunc.fasta.tgz
+  (very large, full alignment, non-redundant SSU, has ALL eukaryotes which is unnecessary)
+  Current release is 119 and 30GB!? why big change (JF look into)   
+
+For now, this can be run in command line in QIIME in the working directory:  "python make_hybrid_tree.py"
+
+It uses Muscle and Fasttree from QIIME
+
+And that is it.
+
+Known issues/questions:
+  9/7/14
+    JF --> use dictionary for organizing OTUs into genera files (this section is very messy)
+    JF --> make root to tip calculation/warnings.  
+    Q: Any reason to use different levels of taxonomy? currently genus/species tree.  Anything else ever used?
+    Q: Do people want the option to view their files (the seq file, alignment or tree). i.e. they want to look at the OTUs in            Phoma or Cladosporium.  (can currently uncomment or comment this feature)
+    Q: SILVA is very messy. It is not organized as well as UNITE. i.e. sometimes when looking for a genus (by slicing the 2nd to         last item in the list) it will grab a family.  So I added a check for that.  
+    Q: Warnings?  When your most abundant ITS genera are not in the Silva tree? That could mess up the tree, correct?  
+
+
+
+
 
 
 
