@@ -1,0 +1,12 @@
+Research for transitioning from QIIME to SciKit-Bio:
+
+Prune trees (at end of code):
+http://scikit-bio.org/docs/0.2.0/generated/skbio.tree.TreeNode.prune.html#skbio.tree.TreeNode.prune
+
+Shear trees (probably > prune… keep only names in a list)****  
+http://scikit-bio.org/docs/0.2.0/generated/skbio.tree.TreeNode.shear.html#skbio.tree.TreeNode.shear
+
+Neighbor joining phylogenetic reconstruction
+http://scikit-bio.org/docs/0.2.0/generated/skbio.tree.nj.html#skbio.tree.nj
+	need distance matrix dm
+	function needed: result_constructor to return a Newick file
