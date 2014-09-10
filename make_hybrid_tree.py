@@ -225,6 +225,7 @@ fout.close()
 
 os.system("filter_tree.py -i 082414_HybridTree.nwk -f rep_set1.fna -o 082414_HybridTree_pruned.nwk") 
 
+#Uncomment these to delete extra files (leave commented for viewing genera files)
 """
 for file in os.listdir(cwd):
     if file.endswith("_tree.nwk"):
