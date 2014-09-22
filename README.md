@@ -5,8 +5,8 @@ This is a two genetic marker phylogenetic tree: hybrid tree
 
 Installation instructions:<p>
 
-Need:<p>
-  1)repset of ITS seqs (I used UNITE)<p>
+Need 3 input files:<p>
+  1)repset of ITS seqs<p>
   2)taxonomy file<p>
   --above are in Google Drive (will share)<p>
   3)Silva 18S file:<p>
@@ -20,8 +20,13 @@ It uses Muscle and Fasttree from QIIME (and other Qiime scripts)
 <p>
 And that is it.
 <p>
+skbio_hybrid_tree_wip.py is the transition away from Qiime dependency; almost working but currently relies on MUSCLE and FASTTREE.  Need to find these equivalents in SKBIO.
 <p>
 <p>
+<p>
+<p>
+<p>
+
 Known issues/questions for later:
   9/7/14<p>
     JF --> use dictionary for organizing OTUs into genera files (IN PROGRESS via wip (work in progress))<p>
