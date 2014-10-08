@@ -13,7 +13,6 @@ DIRECTIONS:
 FastTree (http://www.microbesonline.org/fasttree/)
 MUSCLE (http://www.drive5.com/muscle/)
 
-
 """
 
 """
@@ -31,50 +30,89 @@ generaSeqIDdic ={'FUSARIUM': ['JF773634'], 'ALTERNARIA': ['JN038494', 'JN038495'
 ##  Definitions
 #########################################
 
-def reduce_silva(silvadb,fixedfastaname):
-    """Silva files contain all eukaryotic organisms so this extracts
-    only fungal sequences.
+def reduce_silva(silvadb):
+    """Silva files can contain all eukaryotic organisms so this extracts
+       only fungal sequences.  This code will work when someone submits an
+       18S database that is not limited to fungi.  It also works for
+       18S fasta files that contain only the genus name.
 
+       The 18S input file must be an accurately aligned database such as
+       the ones found on Silva.  
 
     Parameters
     ----------
+    fixedfastaname : str
+        String that determines that fasta name after only the fungi are
+        selected.  
+    
     silvadic : dict
-        A dictionary containing the label (key)
-    and sequence (value) from Silva file.
+        A dictionary containing the label (key) and sequence (value)
+        from Silva file.  In try/except block, this tests if label and
+        sequence work properly.
 
     
     silvagenlist : list
         A list containing all unique fungal genera from Silva file.
 
-    
-    
 
+    label : str
+        The name of the DNA sequence corresponding to one DNA sequence.
+
+
+    seq: str
+        The DNA sequence from a fasta file corresponding to a label.
+
+    
     Returns
     ----------
-        silvadic
-
-        silvagenlist
-
+    silvagenlist : list
+        A list containing all unique fungal genera from Silva file.
         
-
     Examples
     ----------
+    Below are two smaller examples of fasta sequences from a Silva
+    file.  The first one is a fungus and the second one is a plant.
+    Only the fungal sequences should be selected (First sequence).
 
 
+    >AAAA02037088.4053.5842 Eukaryota;Opisthokonta;Nucletmycea;Fungi;
+    Dikarya;Ascomycota;Pezizomycotina;Dothideomycetes;
+    Dothideomycetidae;Capnodiales;Davidiellaceae;
+    Oryza sativa Indica Group
+    .......CCU -GGUU----- GA--U-UC-U -G-C-CA--G -UA-G-UCA- ---U--A-U-
+    -C-A-AA--- ------G--- AU-U--AA-G --CC-A---- U-G--C---- A-U-G--U-C
+    A-UAA--G-C --A------- ---------- ---------- ---------- ----------
+    >Eukaryota;Archaeplastida;Chloroplastida;Charophyta;
+    Phragmoplastophyta;Streptophyta;Embryophyta;Tracheophyta;
+    Spermatophyta;Magnoliophyta;Brassicales;Arabidopsis Arabidopsis	
+    .......CCU -GGUU----- GA--U-UC-U -G-C-CA--G -UA-G-UCA- ---U--A-U-
+    -C-A-AA--- ------G--- AU-U--AA-G --CC-A---- U-G--C---- A-U-G--U-C
+    A-UAA--G-C --A------- ---------- ---------- ---------- ----------
 
 
+    If the input 18S file has only the genera like below, that is fine
+    as well.
+    
 
-    """
+    >Phoma
+    .......CCU -GGUU----- GA--U-UC-U -G-C-CA--G -UA-G-UCA- ---U--A-U-
+    -C-A-AA--- ------G--- AU-U--AA-G --CC-A---- U-G--C---- A-U-G--U-C
+    A-UAA--G-C --A------- ---------- ---------- ---------- ----------
 
     
-    global silvadic,silvagenlist
+    """    
+    global silvagenlist,fixedfastaname
+    fixedfastaname = str(silvadb)
+    fixedfastaname = re.split("\.",fixedfastaname)
+    fixedfastaname = fixedfastaname[0]
+    fixedfastaname = fixedfastaname + "_backbone_fungi_for_hybrid_tree.fasta"
     silvadb = open(silvadb,"U")
     fout = open(fixedfastaname,"w")
     silvadic = {}
     silvagenlist = []
-    for label, seq in parse_fasta(silvadb,label_to_name=silva_label_change):                     
-        #change to fungi BOOLEAN
-        if label == "none":
+    for label,seq in parse_fasta(silvadb,
+            label_to_name=silva_label_change):                     
+        if label == "Not Fungi":
             continue
         else:
             if label not in silvagenlist:
@@ -86,34 +124,34 @@ def reduce_silva(silvadb,fixedfastaname):
                     continue
     silvadb.close()
     fout.close()
-    return silvadic,silvagenlist
+    return silvagenlist
 
 def silva_label_change(label):
-    """
+    """ Changes the label for the 18S backbone so that it is only the
+    genus and nothing more.  
 
 
     Parameters
     ----------
-
+    match : str
+        String used to identify which input file was submitted (i.e. did
+        the input file have genera only or an entire taxonomy line)
 
     Returns
-    ----------       
-
+    ----------
+    label : str
+        The label or name of each sequence after it is modified.
 
     Examples
     ----------
 
-
-
-    """
-
-    
+    """   
+    match = re.split(" ",label)
     try:
-        test = re.split(";",label)
+        match[1] = ""
     except:
-        label = label
         return label
-    if re.search("Fungi",label):
+    if re.search("Fungi",label) and re.search(";",label):
         label = re.split(";",label)
         genus = label[-2]
         try:
@@ -131,14 +169,14 @@ def silva_label_change(label):
         label = genus
         return label
     else:
-        label = "none"
+        label = "Not Fungi"
         return label
     
-def MakeGeneraFastas(fin_taxonomy,fin_repset):
+def make_genera_fastas(fin_taxonomy,fin_repset):
     """Takes ITS fasta file representative sequences and sorts the
-       OTUs/species into their corresponding genus file.
-
-
+       OTUs/species into their corresponding genus file.  This allows
+       OTUs to be compared to other OTUs from the same genus.
+       
     Parameters
     ----------
     repsetdic : dict
@@ -157,24 +195,47 @@ def MakeGeneraFastas(fin_taxonomy,fin_repset):
 
     taxgendic: dict
         A dictionary containing accession ID (key) and genus only
-        from the Unite taxonomy file. 
+        from the Unite taxonomy file. ***** not used currently
     
 
     repsetIDlist :
 
 
     
-    
-
-
     Returns
     ----------       
 
-
     Examples
     ----------
+    Input is a representative sequence fasta file where each sequence
+    corresponds to one representative for all of the OTUs in each
+    cluster.  Each sequence has an accession ID that corresponds to
+    one sequence in the Unite database.  
+
+    Example of one representative fasta sequence from the input
+    fasta file:
+    
+    
+    >>AB015922 Some_comment_ie_sample_location
+    CAGAGCCAAGAGATCCGTTGTTGAAAGTTTTTTCAATTCAAGAATAAAACTTAGACTGCAAAG
+    ACAACATGAGTTTGGTTTGGGTCTTTGGCGGACACGCTCCAGCCGAAGCCGGTGGGCGGCCGA
+    CGCCAGTCCTCACGAACAGCGCCGACGTAGCCCGGCCCGCCAAAGCAACAAGATATAAATCGA
+    CACGGGTGGGAGGGTCGACCCAGCACGC
 
 
+    Example of a taxonomy line:
+
+    AY880934 k__Fungi;p__Basidiomycota;c__Agaricomycetes;
+    o__Thelephorales;f__Thelephoraceae;g__Thelephora;
+    s__Thelephora_terrestris
+
+    
+
+    This code identifies the genus of all OTUs by looking at the
+    accession number from the fasta sequence, then looking at the
+    Unite taxonomy file and identifying the genus the sequence
+    belongs to. The OTUs then get sorted into genus files that
+    have one or more OTUs/species per file.  
 
     """
     global repsetdic,taxdic,taxgendic,repsetIDlist,repgenlist,generaSeqIDdic
@@ -233,8 +294,12 @@ def MakeGeneraFastas(fin_taxonomy,fin_repset):
             os.remove(file)
     return repsetdic,taxdic,taxgendic,repsetIDlist,repgenlist,generaSeqIDdic
 
-def AlignToTree():
-    """
+def align_to_tree():
+    """This function takes each genus file, does a multiple sequence
+        alignment with all OTUs from the genus file, and then makes a
+        phylogenetic tree in Newick format from the multiple sequence
+        alignment.  
+
     Parameters
     ----------
     inputname : str
@@ -244,7 +309,6 @@ def AlignToTree():
     name : str
         Current name only
 
-
     
     Returns
     ----------
@@ -253,7 +317,7 @@ def AlignToTree():
 
     Examples
     ----------
-    Many genus fasta files generated, each containing the
+    Many genus fasta files are generated, each containing the
     ITS sequence for one or more OTUs/species that fall under
     each genus.  This script turns these fasta files into miniature
     phylogenetic trees that have good alignments within clades.
@@ -295,13 +359,7 @@ def AlignToTree():
     General overview:
 
     fasta file -> multiple sequence alignment file -> Newick tree file
-
-
-
     """
-
-    
-    #Muscle creates mini ITS alignments
     cwd = os.getcwd()
     for file in os.listdir(cwd):
         if file.endswith("_seqs.fasta"):
@@ -309,7 +367,6 @@ def AlignToTree():
             file = file.split(".")
             name = file[0]
             os.system(""+muscledir+" -in "+inputname+" -out " +name+ "_aligned.fasta -quiet -maxiters 2 -diags1")
-    #FastTree creates mini ITS trees
     for file in os.listdir(cwd):
         if file.endswith("_aligned.fasta"):
             inputname = str(file)
@@ -317,30 +374,21 @@ def AlignToTree():
             name = file[0]
             os.system(""+ftdir+" -nt -quiet "+inputname+" > " +name+ "_tree.nwk")
  
-def InsertITSin18S(backbone,hybridtree):
+def insert_ITS_in_18S(backbone,hybridtree):
     """Takes the 18S scaffold tree as a Newick format string and
         replaces the 18S genera locations with the corresponding
         ITS miniature trees, also in Newick format.
 
-
-
-
     Parameters
     ----------
     finaltext : str
-        Starts with 18S Newick data and keeps replacing itself with
-        an updated tree with more and more ITS mini tree files.
-        Eventually becomes a complete hybrid tree that will be
-        written to a file.  
+        A string that contains the 18S + ITS hybrid tree information in
+        Newick format.
 
 
     genusname : str
-        Name of the genus from current file in working directory 
+        Name of the genus from current file in the working directory. 
         
-    
-    
-
-
 
     Returns
     ----------       
@@ -348,14 +396,37 @@ def InsertITSin18S(backbone,hybridtree):
 
     Examples
     ----------
+    The fungi from the Silva file are turned into a phylogenetic
+    tree in Newick format similar to this with names of all the
+    non-redundant genera identified:
+
+    Example of 18S backbone:
 
 
+    (Phoma:0.00919,(Cladosporium:0.03335,Aspergillus:0.01090)0.789:
+    0.03099)0.999:0.10873)0.950:0.04895)0.808:0.01461)0.983:0.05376)
+    0.820:0.00456)0.287:0.00053);
+
+
+    Eexample of ITS genus file with the accession numbers of all
+    OTUs/species in the genus file:
+
+
+    (EF669954:0.00919,(GU017494:0.03335,HQ702384:0.01090)0.789:0.03099)
+    0.999:0.10873)0.950:0.04895)0.808:0.01461)0.983:0.05376)0.820:
+    0.00456)0.287:0.00053);
+
+    For each genus in the 18S backbone file, the name of each genus
+    is replaced with the entire contents of the corresponding genus
+    file that contains the ITS miniature phylogenetic tree. So, for
+    this example, if there is a genus file for Phoma, Cladosporium or
+    Aspergillus, the ITS miniature tree file is inserted in place of
+    the genus name in the 18S backbone file.
+        
 
     """
-    #Open the 18S backbone tree file (newick format)
     with open (backbone, "r") as silvafile:
         finaltext = silvafile.read()
-    #insert ITS-1 mini trees into 18S backbone
     cwd = os.getcwd()
     for file in os.listdir(cwd):
         if file.endswith("_tree.nwk"):
@@ -374,31 +445,19 @@ def InsertITSin18S(backbone,hybridtree):
     fout.write(finaltext)
     fout.close()
 
-def count_total_seqs():
-
-    """
-    Parameters
-    ----------
-    
 
 
-
-
-
-    Returns
-    ----------       
-
-
-    Examples
-    ----------
-
-
-
-    """
+def count_unplaced_genera():
+    global totalcount, unplaced_genera
     cwd = os.getcwd()
+    unplacedgenera = []
     filecount = 0
-    global totalcount
+    totalmissing = 0
+    filecount = 0
     totalcount = 0
+    for i in repgenlist:
+        if i not in silvagenlist:
+            unplacedgenera.append(i)
     for file in os.listdir(cwd):
         if file.endswith("_seqs.fasta"):
             genusname = str(file)
@@ -410,95 +469,35 @@ def count_total_seqs():
                     filecount +=1
             fin.close()
             totalcount += filecount
-            print genusname,"has",filecount,"OTUs"
-            filecount = 0
-    print "total number of OTUs is ",totalcount
-    return totalcount
-
-def count_unplaced_genera():
-    """
-
-
-
-    Parameters
-    ----------
-    unplaced_genera : list
-        A list that contains the genera (and their OTUs/species) that
-        were identified by Unite and which no equivalent genera are
-        found in the Silva 18S tree.  Unite has many more fungal
-        genera than the Silva 18S database so there
-        will be discrepancies.
-
-
-    filecount : int
-        Integer that counts the number of OTUs in one genus file,
-        because these OTUs from the genus file
-        were unable to be placed into the Silva tree
-        due to discrepancies in fungal nomenclature.
-
-
-    totalmissing : int
-        
-        
-
-    Returns
-    ----------       
-
-
-    Examples
-    ----------
-
-
-
-    """
-    
-    global unplaced_genera
-    unplaced_genera = []
-    filecount = 0
-    totalmissing = 0
-    for i in repgenlist:
-        if i not in silvagenlist:
-            unplaced_genera.append(i)
-            print i + " from your repset is not found in 18S tree"
-    cwd = os.getcwd()
-    for i in unplaced_genera:
-        for file in os.listdir(cwd):
-            if file.endswith(i+"_seqs.fasta"):
-                genusname = str(file)
-                genusname = re.split("_",genusname)
-                genusname = genusname[2]
-                fin = open(file,"U")
-                for line in fin:
-                    if re.search(">",line):
-                        filecount += 1
-                fin.close()
+            if genusname == "unidentified":
+                unidentifiedOTUcount = filecount
+            if genusname in unplacedgenera:
                 totalmissing += filecount
-                filecount = 0
+                print genusname," from repset is not found in 18S tree and has",filecount,"OTUs"
+            filecount = 0
+    print unidentifiedOTUcount," OTUs were unidentified and not placed in tree"
+    print "total number of OTUs is ",totalcount
     print "total number of missing OTUs is ",totalmissing
     accountedfor = float(totalcount-totalmissing)/totalcount*100
     print accountedfor
 
 def remove_accessory_files():
-    """ 
-
+    """ Removing or keeping these files depends on whether or not
+        the user would like to see each genus' fasta file,
+        alignment file, and tree file.  This can be helpful for further
+        investigation into specific fungal clades.
 
     Parameters
     ----------
     cwd : str
         The current working directory
         
-
     Returns
     ----------       
     
-
     Examples
     ----------
-        Removing or keeping these files depends on whether or not
-        the user would like to see each genus' fasta file,
-        alignment file, and tree file.  This can be helpful for further
-        investigation into specific fungal clades.
-
+ 
     """
     cwd = os.getcwd()
     for file in os.listdir(cwd):
@@ -510,8 +509,6 @@ def remove_accessory_files():
             os.remove(file)       
     os.remove(backbone)
 
-
-
 #########################################
 #  Directories & MANDATORY input files
 #########################################
@@ -520,40 +517,28 @@ def remove_accessory_files():
 muscledir = "/Applications/muscle"
 #directory of FASTTREE
 ftdir = "/Applications/./FastTree"
-#input file
-fin_taxonomy = "99_otu_taxonomy.txt"
-#input file
-fin_repset = "rep_set1_90percent.fna"
-#input file
-silvadb = "SSURef_NR99_115_tax_silva_full_align_trunc.fasta"                          
 
+#inputfiles
+
+
+fin_taxonomy = "99_otu_taxonomy.txt"
+fin_repset = "rep_set1_90percent.fna"
+#silvadb = "SSURef_NR99_115_tax_silva_full_align_trunc.fasta"
+silvadb = "SSURef_fixed.fasta"
 ##  Name of ouput files (optional UNNECESSARY changes)
 #########################################
 
-#18S file that has been reduced from large SSU file to include only fungi
-fixedfastaname = "SSURef_fixed.fasta"
 #Name of 18S backbone phylogenetic tree
 backbone = "rep_phylo18Sbackbone.nwk"
 #Name of final 18S + ITS hybrid phylogenetic tree
 hybridtree = "90percentRepSet_hybridtree.nwk"                             
 
+
 ##  call the functions
 #########################################
-MakeGeneraFastas(fin_taxonomy,fin_repset)
-##print "MakeGeneraFiles: "
-#reduce_silva(silvadb,fixedfastaname)
-os.system(""+ftdir+" -nt -quiet "+fixedfastaname+" > "+backbone+"")
-AlignToTree()
-InsertITSin18S(backbone,hybridtree)
-#print "InsertITSin18S: "
-
-
-#count_total_seqs()
-#count_unplaced_genera()
-
-
-######Uncomment these to delete extra files.
-#Comment for viewing fasta files, alignment files and tree files.
-
-
-
+make_genera_fastas(fin_taxonomy,fin_repset)
+reduce_silva(silvadb)
+#os.system(""+ftdir+" -nt -quiet "+fixedfastaname+" > "+backbone+"")
+#align_to_tree()
+insert_ITS_in_18S(backbone,hybridtree)
+count_unplaced_genera()
