@@ -17,8 +17,8 @@ MUSCLE (http://www.drive5.com/muscle/)
 """
 def reduce_silva(silvadb):
     """Silva files can contain all eukaryotic organisms so this extracts
-       only fungal sequences.  This code will work when someone submits an
-       18S database that is not limited to fungi.  It also works for
+       only fungal sequences.  This code will work when someone submits 
+       an 18S database that is not limited to fungi.  It also works for
        18S fasta files that contain only the genus name.
 
        The 18S input file must be an accurately aligned database such as
@@ -468,7 +468,7 @@ def count_unplaced_genera():
 
 
     """    
-    
+    global unplacedgenera
     unplacedgenera = []
     fileOTUcount = 0
     totalmissing = 0
@@ -499,6 +499,70 @@ def count_unplaced_genera():
     print "total number of missing OTUs is ",totalmissing
     accountedfor = float(totalcount-totalmissing)/totalcount*100
     print accountedfor
+    return unplacedgenera
+    
+    
+    
+    
+def insert_unplaced_genera(hybridtree):
+    """ This code inserts the unplaced genera (genera that were not 
+        found in the 18S scaffold) at the "bottom" of the tree.  These
+        genera were correctly grouped and so their alignments are 
+        important.  
+    
+    Parameters
+    ----------
+    cwd : str
+        The current working directory
+        
+    Returns
+    ----------       
+    
+    Examples
+    ----------
+ 
+    """
+    foutfinal = open("MergedHybridTreeUNIDsMissing.nwk","w")
+
+    #open hybrid tree:
+    with open(hybridtree,"r") as hybridfile:
+        hybridtext = hybridfile.read()
+        hybridtext = hybridtext[1:-3] + ","
+
+    #Missing from SILVA db:
+    bigmissingtext = ""
+    for i in unplacedgenera:
+        if i != "unidentified":
+            with open("g__"+i+"_seqs_aligned_tree.nwk","r") as missinggenfile:
+                missinggentext = missinggenfile.read()
+                missinggentext = missinggentext[1:-3] + ","  #ends each clade with , and removes (
+                bigmissingtext += missinggentext
+
+    #reformat newick properly and merge hybrid tree and unplaced genera
+    fouttext = "("+ hybridtext + bigmissingtext
+    fouttext = fouttext[0:-2] + ");"  #ends an entire newick file
+    foutfinal.write(fouttext)
+    foutfinal.close()
+
+
+"""
+    #Unidentified
+    fin = open("g__unidentified_seqs.fasta","U")
+    fout = open("g__unidentified_seqsIDSONLY.fasta","w")
+    for line in fin:
+        if re.search(">",line):
+            fout.write(line)
+            fout.write("ATCG\n")   #unidentifieds cannot be aligned
+    fin.close()
+    fout.close()
+    os.system(""+ftdir+" -nt -quiet g__unidentified_seqsIDSONLY.fasta > g__unidentified_tree_unaligned.nwk")
+    with open("g__unidentified_tree_unaligned.nwk","r") as unidfile:
+        unidtext = unidfile.read()
+        unidtext = unidtext[1:-3] + ","
+"""
+  
+    
+    
 
 def remove_accessory_files():
     """ Removing or keeping these files depends on whether or not
@@ -527,6 +591,11 @@ def remove_accessory_files():
             os.remove(file)       
     os.remove(backbone)
 
+
+
+
+
+
 #directory of MUSCLE    
 muscledir = "/Applications/muscle"
 #directory of FASTTREE
@@ -534,15 +603,14 @@ ftdir = "/Applications/./FastTree"
 
 
 fin_taxonomy = "99_otu_taxonomy.txt"
-fin_repset = "rep_set1_90percent.fna"
+fin_repset = "rep_set1.fna"
 #silvadb = "SSURef_NR99_115_tax_silva_full_align_trunc.fasta"
 silvadb = "SSURef_fixed.fasta"
 
 #Name of 18S backbone phylogenetic tree
 backbone = "rep_phylo18Sbackbone.nwk"
 #Name of final 18S + ITS hybrid phylogenetic tree
-hybridtree = "90percentRepSet_hybridtree.nwk"                             
-
+hybridtree = "ITS18Shybridtree.nwk"                             
 
 make_genera_fastas(fin_taxonomy,fin_repset)
 reduce_silva(silvadb)
@@ -550,3 +618,4 @@ os.system(""+ftdir+" -nt -quiet "+fixedfastaname+" > "+backbone+"")
 align_to_tree()
 insert_ITS_in_18S(backbone,hybridtree)
 count_unplaced_genera()
+insert_unplaced_genera(hybridtree)
