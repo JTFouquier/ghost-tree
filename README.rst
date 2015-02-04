@@ -22,11 +22,3 @@ There are two scripts, one relies on Qiime (make_hybrid_tree.py) and the other o
 skbio_hybrid_tree_wip.py is the transition away from Qiime dependency; CHANGE input files at the bottom of python script & change directory of FastTree and Muscle (you must download and install locally)
 <p>
 <p>
-
-
-
-
-
-
-
-
