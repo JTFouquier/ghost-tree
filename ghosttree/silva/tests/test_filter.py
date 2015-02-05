@@ -4,6 +4,7 @@ from StringIO import StringIO
 
 from ghosttree.silva.filter import fungi_from_fasta
 
+
 class TestFungiFromFasta(unittest.TestCase):
     def test_fasta_no_fungi(self):
         fasta_file = StringIO(fasta_no_fungi)

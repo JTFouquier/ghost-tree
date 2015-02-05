@@ -1,5 +1,6 @@
 import skbio
 
+
 def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
     accession_map = _parse_accession_map(accession_fh)
     taxonomy_map = _parse_taxonomy_map(taxonomy_fh)
@@ -7,6 +8,7 @@ def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
         map_num = accession_map[seq.id]
         if map_num in taxonomy_map:
             yield seq
+
 
 def _parse_accession_map(accession_fh):
     accession_map = {}
@@ -16,6 +18,7 @@ def _parse_accession_map(accession_fh):
             raise ValueError("Duplicate accession number %r" % accession)
         accession_map[accession] = map_num
     return accession_map
+
 
 def _parse_taxonomy_map(taxonomy_fh):
     taxonomy_map = {}
