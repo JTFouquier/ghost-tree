@@ -1,14 +1,23 @@
-# Check on http://lint.travis-ci.org/ after modifying it!
-#copied from https://github.com/biocore/burrito
+# Copied and modified from scikit-bio
+# Check on http://lint.travis-ci.org/ after modifying it!  Originally
+# modified from https://gist.github.com/dan-blanchard/7045057
 language: python
-python:
-  - "2.7"
+env:
+  - PYTHON_VERSION=2.7
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.3-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+  # Update conda itself
+  - conda update --yes conda
 install:
-  - pip install nose pep8 flake8 coveralls
+  - conda create --yes -n env_name python=$PYTHON_VERSION pip flake8 nose scikit-bio
+  - source activate env_name
+  - pip install coveralls
   - pip install .
 script:
-  - nosetests --with-coverage
-  - pep8 ghosttree setup.py
+  - nosetests ghosttree --with-coverage
   - flake8 ghosttree setup.py
 after_success:
   - coveralls
