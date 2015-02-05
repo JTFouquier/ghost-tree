@@ -28,7 +28,7 @@ skbio_hybrid_tree_wip.py is the transition away from Qiime dependency; CHANGE in
 
 
 
-.. |Build Status| image:: https://travis-ci.org/biocore/scikit-bio.svg?branch=master
-   :target: https://travis-ci.org/biocore/scikit-bio
-.. |Coverage Status| image:: https://coveralls.io/repos/biocore/scikit-bio/badge.png
-   :target: https://coveralls.io/r/biocore/scikit-bio
+.. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
+   :target: https://travis-ci.org/JTFouquier/ghost-tree
+.. |Coverage Status| image:: https://coveralls.io/repos/JTFouquier/ghost-tree/badge.png
+   :target: https://coveralls.io/r/JTFouquier/ghost-tree
