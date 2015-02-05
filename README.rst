@@ -1,9 +1,12 @@
 hybrid_tree
 ===========
+
+|Build Status| |Coverage Status|
+
 <p>
 This is a two genetic marker phylogenetic tree: hybrid tree
 
-Installation instructions:<p>  
+Installation instructions:<p>
 
 For BOTH scripts, you need 3 input files:<p>
   1)repset of ITS seqs<p>
@@ -22,3 +25,10 @@ There are two scripts, one relies on Qiime (make_hybrid_tree.py) and the other o
 skbio_hybrid_tree_wip.py is the transition away from Qiime dependency; CHANGE input files at the bottom of python script & change directory of FastTree and Muscle (you must download and install locally)
 <p>
 <p>
+
+
+
+.. |Build Status| image:: https://travis-ci.org/biocore/scikit-bio.svg?branch=master
+   :target: https://travis-ci.org/biocore/scikit-bio
+.. |Coverage Status| image:: https://coveralls.io/repos/biocore/scikit-bio/badge.png
+   :target: https://coveralls.io/r/biocore/scikit-bio
