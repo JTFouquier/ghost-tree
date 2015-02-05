@@ -3,6 +3,8 @@ import click
 
 import skbio
 
+from ghosttree.silva.filter import fungi_from_fasta
+
 
 @click.group()
 def cli():
@@ -13,20 +15,12 @@ def silva():
     pass
 
 @silva.command("extract-fungi")
-@click.argument("fasta_fp")
-@click.argument("accession_fp")
-@click.argument("taxonomy_fp")
-@click.argument("output_fp")
-def extract_fungi(fasta_fp, accession_fp, taxonomy_fp, output_fp):
-    try:
-        fasta_fh = open(fasta_fp, "U")
-        accession_fh = open(accession_fp, "U")
-        taxonomy_fh = open(taxonomy_fp, "U")
-        skbio.write(fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh), into=output_fp, format="fasta")
-    finally:
-        fasta_fh.close()
-        accession_fh.close()
-        taxonomy_fh.close()
+@click.argument("fasta-file", type=click.File("U"))
+@click.argument("accession-file", type=click.File("U"))
+@click.argument("taxonomy-file", type=click.File("U"))
+@click.argument("output-file", type=click.File("w"))
+def extract_fungi(fasta_file, accession_file, taxonomy_file, output_file):
+    skbio.write(fungi_from_fasta(fasta_file, accession_file, taxonomy_file), into=output_file, format="fasta")
 
 
 if __name__ == "__main__":

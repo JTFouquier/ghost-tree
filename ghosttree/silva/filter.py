@@ -20,9 +20,11 @@ def _parse_accession_map(accession_fh):
 def _parse_taxonomy_map(taxonomy_fh):
     taxonomy_map = {}
     for line in taxonomy_fh:
-        taxonomy, map_num, rank = line.split("\t")
-        if rank == "genus" and "Fungi" in taxonomy:
+        split_line = line.split("\t")
+        if len(split_line) == 3:
+            taxonomy, map_num, rank = split_line
             if map_num in taxonomy_map:
                 raise ValueError("Duplicate map number %r" % map_num)
-            taxonomy_map[map_num] = taxonomy
+            if rank == "genus" and "Fungi" in taxonomy:
+                taxonomy_map[map_num] = taxonomy
     return taxonomy_map
