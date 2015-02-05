@@ -1,0 +1,14 @@
+# Check on http://lint.travis-ci.org/ after modifying it!
+#copied from https://github.com/biocore/burrito
+language: python
+python:
+  - "2.7"
+install:
+  - pip install nose pep8 flake8 coveralls
+  - pip install .
+script:
+  - nosetests --with-coverage
+  - pep8 ghosttree setup.py
+  - flake8 ghosttree setup.py
+after_success:
+  - coveralls
