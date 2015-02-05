@@ -13,7 +13,7 @@ def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
 def _parse_accession_map(accession_fh):
     accession_map = {}
     for line in accession_fh:
-        accession, map_num = line.split("\t")
+        accession, map_num = line.strip().split("\t")
         if accession in accession_map:
             raise ValueError("Duplicate accession number %r" % accession)
         accession_map[accession] = map_num
@@ -23,7 +23,7 @@ def _parse_accession_map(accession_fh):
 def _parse_taxonomy_map(taxonomy_fh):
     taxonomy_map = {}
     for line in taxonomy_fh:
-        split_line = line.split("\t")
+        split_line = line.strip().split("\t")
         if len(split_line) == 3:
             taxonomy, map_num, rank = split_line
             if map_num in taxonomy_map:
