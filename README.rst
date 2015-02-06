@@ -5,7 +5,7 @@ ghost-tree
 
 ghost-tree is a bioinformatics tool that combines sequence data from two
 genetic marker databases into one phylogenetic tree that can be used for
-diversity analyses. One dababase is used as a backbone or scaffold because it
+diversity analyses. One database is used as a backbone or scaffold because it
 provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
