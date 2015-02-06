@@ -72,16 +72,16 @@ ATCG
 fasta_with_fungi = """>AB21 Fungi
 ATCG
 """
-taxonomy_with_fungi = """Fungi\t123\tgenus
-Eukaryote;Fungi;Fungal Species\t456\tgenus
-Fungi;Fungal species\t789\tgenus
-Bacteria;bacterial species\t111\tgenus
-Fungi;cladosporium\t100\tdomain
+taxonomy_with_fungi = """Fungi\t123\tgenus\t\t
+Eukaryote;Fungi;Fungal Species\t456\tgenus\t\t
+Fungi;Fungal species\t789\tgenus\t\t
+Bacteria;bacterial species\t111\tgenus\t\t
+Fungi;cladosporium\t100\tdomain\t\t
 """
-taxonomy_no_fungi = "Bacteria\t123\tdomain"
-taxonomy_with_duplicates = """Fungi\t123\tgenus
-Fungi\t123\tgenus
-Fungi\t122\tgenus
+taxonomy_no_fungi = "Bacteria\t123\tdomain\t\t"
+taxonomy_with_duplicates = """Fungi\t123\tgenus\t\t
+Fungi\t123\tgenus\t\t
+Fungi\t122\tgenus\t\t
 """
 accession = """AB21\t123
 AB123\t456
