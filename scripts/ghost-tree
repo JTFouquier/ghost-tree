@@ -1,15 +1,35 @@
 #!/usr/bin/env python
+# third party dependencies (i.e. packages not included with python)
 import click
-
 import skbio
 
+# library code imports
 from ghosttree.silva.filter import fungi_from_fasta
+from ghosttree.util import compare_tip_to_tip_distances
 
 
 @click.group()
 def cli():
     pass
 
+# click command and args here are for the user
+# cli group is the "invisible" top level group
+@cli.command("compare-trees")
+@click.argument("tree-file1", type=click.File("U"))
+@click.argument("tree-file2", type=click.File("U"))
+@click.option("-m", "--method", default="pearson",
+              type=click.Choice(["pearson", "spearman"]),
+              help="correlation method to use in Mantel test")
+def compare_trees(tree_file1, tree_file2, method):
+    coeff, p_value, n = compare_tip_to_tip_distances(tree_file1,
+                                                     tree_file2,
+                                                     method)
+    click.echo("Correlation coefficient: %f" % coeff)
+    click.echo("p-value: %f" % p_value)
+    click.echo("Number of overlapping tips: %d" % n)
+
+# silva is nested under cli group (silva shows up on command line
+# interface but cli does not
 @cli.group()
 def silva():
     pass
