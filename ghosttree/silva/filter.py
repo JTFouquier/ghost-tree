@@ -27,10 +27,8 @@ def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
     -------
     generator
         Yields ``skbio.BiologicalSequence`` objects.
-        
+
     """
-
-
     accession_map = _parse_accession_map(accession_fh)
     taxonomy_map = _parse_taxonomy_map(taxonomy_fh)
     for seq in skbio.read(fasta_fh, format="fasta"):
