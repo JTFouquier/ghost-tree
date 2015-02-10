@@ -6,7 +6,7 @@ import skbio
 # library code imports
 from ghosttree.silva.filter import fungi_from_fasta
 from ghosttree.util import compare_tip_to_tip_distances
-
+from ghosttree.tips.cluster import preprocess_tip_sequences
 
 @click.group()
 def cli():
@@ -41,6 +41,19 @@ def silva():
 @click.argument("output-file", type=click.File("w"))
 def extract_fungi(fasta_file, accession_file, taxonomy_file, output_file):
     skbio.write(fungi_from_fasta(fasta_file, accession_file, taxonomy_file), into=output_file, format="fasta")
+
+
+@cli.group()
+def tips():
+    pass
+
+@tips.command("group-tips")
+@click.argument("species-level-otus-file", type=click.File("U"))
+@click.argument("fixed-species-level-otus-file", type=click.File("w"))
+def group_tips(species_level_otus_file, fixed_species_level_otus_file):
+    skbio.write(preprocess_tip_sequences(species_level_otus_file), into=fixed_species_level_otus_file, format="fasta")
+
+
 
 
 if __name__ == "__main__":
