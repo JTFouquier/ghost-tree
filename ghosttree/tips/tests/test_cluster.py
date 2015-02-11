@@ -15,7 +15,6 @@ class TestClusterTipSequences(unittest.TestCase):
 
     def test_tip_seqs_normal(self):
         result = preprocess_tip_sequences(self.tips_with_normal_format)
-        print result
         self.assertEqual(list(result), [BiologicalSequence("ATC",
                                                            id="SSS456_1")])
 
@@ -28,7 +27,7 @@ tips_with_normal_format = """>SSS456
 ATC
 """
 tips_random_characters = """>JJJ123_1
-AgGS SSP
+AgGS S@P
 """
 
 if __name__ == "__main__":
