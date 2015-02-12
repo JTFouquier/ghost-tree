@@ -2,8 +2,10 @@ import skbio
 import re
 from skbio import BiologicalSequence
 
+# insert taxonomy file added
 
-def preprocess_tip_sequences(species_level_otus_fh):
+
+def preprocess_tip_sequences(species_level_otus_fh, taxonomy_f):
     """Cluster OTUs in small groups for alignment and tree construction.
 
     Draft notes:
@@ -39,6 +41,7 @@ def preprocess_tip_sequences(species_level_otus_fh):
         Yields ``skbio.BiologicalSequence`` objects.
 
     """
+
     for seq in skbio.read(species_level_otus_fh, format="fasta"):
         seq = seq.upper()
         if "-" not in seq.id:
@@ -47,6 +50,16 @@ def preprocess_tip_sequences(species_level_otus_fh):
         seq = BiologicalSequence(new_seq_sequence, id=new_seq_id)
         yield seq
 
+
+def build_taxonomy_dic(taxonomy_fh):
+    taxonomy_dic = {}
+    for line in taxonomy_fh:
+        accession, full_taxonomy_line = line.rstrip("\n").split("\t")
+        if "g__" not in full_taxonomy_line:
+            raise ValueError("Taxonomy file must contain genera %r" %
+                             full_taxonomy_line)
+        taxonomy_dic[accession] = full_taxonomy_line
+    return taxonomy_dic
 
 # muscledir = "/Applications/muscle"
 
