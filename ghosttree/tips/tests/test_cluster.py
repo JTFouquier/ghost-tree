@@ -40,10 +40,7 @@ tips_random_characters = """>JJJ123_1
 AgGS S@P
 """
 
-taxonomy_file_genera = """
-JJJ999\tk__Fungi;p__Bas;c__Ag;o__Th;f__Tcae;g__Thora;s__fungalspecies
-TTT000\tk__Fungi;p__Bas;c__Ag;o__Th;f__Tcae;g__Thora;s__uncultured
-"""
+taxonomy_file_genera = "JJJ999\tk__Fungi;p__;c__;o__;f__Tca;g__Th;s__species"
 
 taxonomy_file_no_genera = """
 JJJ999\tk__Fungi;p__Bas;c__Ag;o__Th;f__Tcae;s__fungalspecies

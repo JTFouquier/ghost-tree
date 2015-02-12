@@ -5,7 +5,7 @@ from skbio import BiologicalSequence
 # insert taxonomy file added
 
 
-def preprocess_tip_sequences(species_level_otus_fh, taxonomy_f):
+def preprocess_tip_sequences(species_level_otus_fh, taxonomy_fh):
     """Cluster OTUs in small groups for alignment and tree construction.
 
     Draft notes:
@@ -41,7 +41,7 @@ def preprocess_tip_sequences(species_level_otus_fh, taxonomy_f):
         Yields ``skbio.BiologicalSequence`` objects.
 
     """
-
+    build_taxonomy_dic(taxonomy_fh)
     for seq in skbio.read(species_level_otus_fh, format="fasta"):
         seq = seq.upper()
         if "-" not in seq.id:
@@ -54,7 +54,7 @@ def preprocess_tip_sequences(species_level_otus_fh, taxonomy_f):
 def build_taxonomy_dic(taxonomy_fh):
     taxonomy_dic = {}
     for line in taxonomy_fh:
-        accession, full_taxonomy_line = line.rstrip("\n").split("\t")
+        accession, full_taxonomy_line = line.split("\t")
         if "g__" not in full_taxonomy_line:
             raise ValueError("Taxonomy file must contain genera %r" %
                              full_taxonomy_line)
