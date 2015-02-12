@@ -49,10 +49,10 @@ def tips():
 
 @tips.command("group-tips")
 @click.argument("species-level-otus-file", type=click.File("U"))
-@click.argument("taxonomy-file", type=click.File("U"))
+@click.argument("tip-taxonomy-file", type=click.File("U"))
 @click.argument("fixed-species-level-otus-file", type=click.File("w"))
-def group_tips(species_level_otus_file, taxonomy_file, fixed_species_level_otus_file):
-    skbio.write(preprocess_tip_sequences(species_level_otus_file, taxonomy_file), into=fixed_species_level_otus_file, format="fasta")
+def group_tips(species_level_otus_file, tip_taxonomy_file, fixed_species_level_otus_file):
+    skbio.write(preprocess_tip_sequences(species_level_otus_file, tip_taxonomy_file), into=fixed_species_level_otus_file, format="fasta")
 
 if __name__ == "__main__":
     cli()
