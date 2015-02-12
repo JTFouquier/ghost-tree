@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # copied and modified from https://github.com/biocore/scikit-bio
 __version__ = "0.0.1-dev"
-
 from setuptools import find_packages, setup
 from glob import glob
 
