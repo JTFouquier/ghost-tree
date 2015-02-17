@@ -4,9 +4,11 @@ import click
 import skbio
 
 # library code imports
-from ghosttree.silva.filter import fungi_from_fasta
 from ghosttree.util import compare_tip_to_tip_distances
+from ghosttree.filter import filter_positions
 from ghosttree.tips.cluster import preprocess_tip_sequences
+from ghosttree.silva.filter import fungi_from_fasta
+
 
 @click.group()
 def cli():
@@ -28,6 +30,21 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("p-value: %f" % p_value)
     click.echo("Number of overlapping tips: %d" % n)
 
+@click.group()
+def cli():
+    pass
+
+@cli.command("filter-alignment-positions")
+@click.argument("alignment-file", type=click.File("U"))
+@click.argument("maximum-gap-frequency", type=float)
+@click.argument("maximum-position-entropy", type=float)
+@click.argument("output-file", type=click.File("w"))
+def filter_alignment_positions(alignment_file, maximum_gap_frequency,
+                               maximum_position_entropy, output_file):
+    skbio.write(filter_positions(alignment_file, maximum_gap_frequency,
+                                 maximum_position_entropy),
+                                 into=output_file, format="fasta")
+
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
 @cli.group()
@@ -41,7 +58,6 @@ def silva():
 @click.argument("output-file", type=click.File("w"))
 def extract_fungi(fasta_file, accession_file, taxonomy_file, output_file):
     skbio.write(fungi_from_fasta(fasta_file, accession_file, taxonomy_file), into=output_file, format="fasta")
-
 
 @cli.group()
 def tips():
