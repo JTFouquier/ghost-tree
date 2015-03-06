@@ -28,7 +28,7 @@ class TestClusterTipSequences(unittest.TestCase):
         self.assertEqual(list(result),
                          [BiologicalSequence("AGGAAAAA", id="JJJ123_1")])
 
-    def text_taxonomy_file_no_genera(self):
+    def test_taxonomy_file_no_genera(self):
         with self.assertRaises(ValueError):
             list(preprocess_tip_sequences(self.tips_with_normal_format,
                                           self.taxonomy_file_no_genera))
@@ -36,13 +36,14 @@ class TestClusterTipSequences(unittest.TestCase):
 tips_with_normal_format = """>SSS456
 ATC
 """
+
 tips_random_characters = """>JJJ123_1
 AgGS S@P
 """
 
 taxonomy_file_genera = "JJJ999\tk__Fungi;p__;c__;o__;f__Tca;g__Th;s__species"
 
-taxonomy_file_no_genera = """JJJ999\tk__Fungi;p__Bas;c__Ag;o__Th;f__Tcae;s__fungalspecies
+taxonomy_file_no_genera = """JJJ999\tk__Fungi;p__B;c__Ag;o__Th;f__Tcae;s__fun
 TTT000\tk__Fungi;p__Bas;c__Ag;o__Th;f__Tcae;s__uncultured
 """
 
