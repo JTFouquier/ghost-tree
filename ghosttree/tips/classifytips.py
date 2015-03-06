@@ -1,9 +1,52 @@
 # from collections import Counter
 
 
+# Needs to address OTU table errors (duplicates)
 # this step is all after doing Sumaclust
 def find_rep_otu_genus(otu_table_fh, taxonomy_fh, modified_otu_table_fh,
                        modified_otu_table_NR_fh):
+    """Find representative genus for each "tip cluster"
+
+    This function takes in an OTU table file handle clustered at the user's
+    desired percent similarity. This OTU table can be clustered once (i.e.)
+    at 97 or 99 percent similarity) or can be from a secondary clustering step
+    to capture more of the unidentified sequences so that they will be
+    placed onto the final tree (see "ghost-tree group-tips"). Each OTU
+    group will be XXXX
+
+    Parameters
+    __________
+    otu_table_fh : filehandle
+    The OTU table file handle will be an OTU table of clusters where each
+        line corresponds to a group of sequences denoted by their accession
+        numbers that clustered based on a user's desired percent similarity.
+        (XXXXXX if there is a duplicate, skip it, if not then do a different
+        code)
+        example:
+        A111\tA111\tA112
+        A222\tA222\tA223
+        A333\tA333\tA334
+    taxonomy_fh : filehandle
+        The taxonomy file handle will be in a tab delimited file containing the
+        accession number and the corresponding taxonomy line. There are two
+        columns, which are accession number and taxonomy line. The taxonomy
+        line must be in the format =
+        k__fungi;p__phylum;c__class;o__order;f__family;g__genus;s__species
+        There are always two underscores which is typical for "QIIME style"
+        taxonomy lines (cite).
+        example:
+        A112\tk__Fungi;p__Asco;c__Do;o__My;f__Els;g__Phoma;s__El
+        (XXXXX RAISE ERROR if incorrect format)
+    modified_otu_table_fh : filehandle
+        Table containing genus name and
+        modified_otu_table_NR_fh : filehandle
+        Needs to be non-redundant for genus, but contain groups of OTUs from
+        different lines and clusters XXXXX
+
+    Returns
+    _______
+    otu_genus_dic : dict
+    """
     accession_taxonomy_dic = _create_taxonomy_dic(taxonomy_fh)
     all_genera_list = []
     otu_genus_dic = {}
@@ -49,11 +92,3 @@ def _create_taxonomy_dic(taxonomy_fh):
     line = ""
     taxonomy_fh.close()
     return accession_taxonomy_dic
-
-"""
-needs more arguments... testing purposes only
-find_rep_otu_genus("miniotus.txt", "minitaxonomy.txt",
-                   "modifiedotu021615.txt")
-find_rep_otu_genus("fullITSOTUmap97_clustered80.txt", "97_otu_taxonomy.txt",
-                   "modifiedotularge021615.txt")
-"""
