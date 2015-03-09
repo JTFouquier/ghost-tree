@@ -9,6 +9,8 @@ from ghosttree.filter import filter_positions
 from ghosttree.tips.cluster import preprocess_tip_sequences
 from ghosttree.tips.classifytips import find_rep_otu_genus
 from ghosttree.silva.filter import fungi_from_fasta
+from ghosttree.scaffold.hybridtree import scaffold_tips_into_backbone
+
 
 @click.group()
 def cli():
@@ -84,6 +86,25 @@ def classify_tips(otu_table_file, taxonomy_file, otu_output_file,
                   non_redundant_otu_output_file):
     find_rep_otu_genus(otu_table_file, taxonomy_file, otu_output_file,
                        non_redundant_otu_output_file)
+
+@cli.group()
+def scaffold():
+    pass
+
+@scaffold.command("hybrid-tree")
+@click.argument("tips-otu-table", type=click.File("U"))
+@click.argument("tips-taxonomy-file", type=click.File("U"))
+@click.argument("tips-sequence-file", type=click.File("U"))
+@click.argument("backbone-alignment-file", type=click.File("U"))
+@click.argument("ghost-tree-output-file", type=click.File("w"))
+def hybrid_tree(tips_otu_table, tips_taxonomy_file, tips_sequence_file,
+                backbone_alignment_file, ghost_tree_output_file):
+    scaffold_tips_into_backbone(tips_otu_table, tips_taxonomy_file,
+                                tips_sequence_file,
+                                backbone_alignment_file,
+                                ghost_tree_output_file)
+
+
 
 if __name__ == "__main__":
     cli()
