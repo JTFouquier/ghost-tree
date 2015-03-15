@@ -8,7 +8,7 @@ from skbio.alignment import SequenceCollection
 from skbio import read
 
 
-def scaffold_tips_into_backbone(otu_file, tips_taxonomy_fh, tips_seq_fh,
+def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
                                 backbone_alignment_fh, ghost_tree_fp):
     """Combines two genetic databases into one phylogenetic tree.
 
@@ -23,16 +23,19 @@ def scaffold_tips_into_backbone(otu_file, tips_taxonomy_fh, tips_seq_fh,
 
     Parameters
     __________
-    otu_file : filehandle
+    otu_file_fh_fh : filehandle
         Tab-delimited text file containing OTU clusters in rows. Format can be
-        1) where the accession number is in the first column, and the
-        remaining columns are the individual reads OR 2) it can contain only
-        accession numbers clustered in rows. This file refers to the "tips".
-        This is not the OTU .biom table.
+        1) where the accession number is in the first column with only one
+        column or 2) it can contain accession numbers clustered in tab-
+        delimited rows containing more accession numbers, which are part of
+        that OTU cluster (as in output of "ghost-tree group-tips").
+        This file refers to the "tips". File references to sequence reads or
+        sample numbers/names are not valid here. This is not an OTU .biom
+        table.
 
     tips_taxonomy_fh : filehandle
         Tab-delimited text file related to "tips" wih the 1st column being an
-        accession number (same accession numbers in otu_file and
+        accession number (same accession numbers in otu_file_fh and
         tips_taxonomy_fh) and the 2nd column is the taxonomy ranking in the
         following format:
         k__Fungi;p__Basidiomycota;c__Agaricomycetes;o__Sebacinales;
@@ -41,7 +44,7 @@ def scaffold_tips_into_backbone(otu_file, tips_taxonomy_fh, tips_seq_fh,
     tips_seq_fh : filehandle
         The .fasta formated sequences for the "tips" genetic dataset. Sequence
         identifiers are the accession numbers. These accession numbers are
-        the same as in the otu_file and tips_taxonomy_fh.
+        the same as in the otu_file_fh and tips_taxonomy_fh.
 
     backbone_alignment_fh : filehandle
         File containing pre-aligned sequences from a genetic marker database
@@ -57,7 +60,7 @@ def scaffold_tips_into_backbone(otu_file, tips_taxonomy_fh, tips_seq_fh,
     backbone_accession_genus_dic = {}
     global seqs
     # if no OTU text file, then make a "simulated OTU table" from OTU
-    tips_genus_accession_list_dic = _tips_genus_accession_dic(otu_file,
+    tips_genus_accession_list_dic = _tips_genus_accession_dic(otu_file_fh,
                                                               tips_taxonomy_fh)
     skbio.write(_make_nr_backbone_alignment(backbone_alignment_fh,
                 tips_genus_accession_list_dic),
@@ -107,13 +110,13 @@ def _make_mini_otu_files(key_node, tips_genus_accession_list_dic, seqs):
     return fasta_format
 
 
-def _tips_genus_accession_dic(otu_file, tips_taxonomy_fh):
+def _tips_genus_accession_dic(otu_file_fh, tips_taxonomy_fh):
     """Find representative genus for each "tip cluster" """
     accession_taxonomy_dic = _create_taxonomy_dic(tips_taxonomy_fh)
     all_genera_in_tips_list = []
     global tips_genus_accession_list_dic
     tips_genus_accession_list_dic = {}
-    for line in otu_file:
+    for line in otu_file_fh:
         accession_list = line.strip().split("\t")  # line's accession list
         if accession_list[0] == accession_list[1]:
             del accession_list[0]  # remove the duplicate if there is one
@@ -139,7 +142,7 @@ def _tips_genus_accession_dic(otu_file, tips_taxonomy_fh):
         else:
             for i in accession_list:  # not efficient
                 tips_genus_accession_list_dic[most_common_genus].append(i)
-    otu_file.close()
+    otu_file_fh.close()
     return tips_genus_accession_list_dic
 
 

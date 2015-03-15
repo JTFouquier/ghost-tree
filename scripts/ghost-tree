@@ -9,7 +9,7 @@ from ghosttree.filter import filter_positions
 from ghosttree.tips.cluster import preprocess_tip_sequences
 from ghosttree.tips.classifytips import find_rep_otu_genus
 from ghosttree.silva.filter import fungi_from_fasta
-from ghosttree.scaffold.hybridtree import scaffold_tips_into_backbone
+from ghosttree.hybridtree import scaffold_tips_into_backbone
 
 
 @click.group()
@@ -87,8 +87,8 @@ def classify_tips(otu_table_file, taxonomy_file, otu_output_file,
     find_rep_otu_genus(otu_table_file, taxonomy_file, otu_output_file,
                        non_redundant_otu_output_file)
 
-@cli.group()
-def scaffold():
+@click.group()
+def cli():
     pass
 
 @scaffold.command("hybrid-tree")
