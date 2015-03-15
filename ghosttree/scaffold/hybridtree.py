@@ -4,146 +4,116 @@ import os
 import skbio
 
 from skbio import TreeNode
-from skbio import Alignment
+from skbio.alignment import SequenceCollection
 from skbio import read
 
 
-def scaffold_tips_into_backbone(otu_table_fh, tips_taxonomy_fh, tips_seq_fh,
+def scaffold_tips_into_backbone(otu_file, tips_taxonomy_fh, tips_seq_fh,
                                 backbone_alignment_fh, ghost_tree_fp):
-    """Inserts miniature trees into scaffold/backbone phylogenetic tree
+    """Combines two genetic databases into one phylogenetic tree.
 
-    To Do:
-    Need to create phylogenetic tree for the backbone tree.
-    Need to align each genus' accession list and create phylogenetic tree.
-
+    Some genetic databases provide finer taxonomic resolution,
+    but high sequence variability causes poor multiple sequence alignments
+    (these are the "tips" of the tree). Other databases provide high quality
+    phylogenetic information (hence it is used as the "backbone"), but poor
+    taxonomic resolution. This script combines two genetic databases into
+    one phylogenetic tree in .nwk format, taking advantage of the benefits
+    of both databases, but allowing sequencing to be performed using the
+    "tips" primer set.
 
     Parameters
     __________
+    otu_file : filehandle
+        Tab-delimited text file containing OTU clusters in rows. Format can be
+        1) where the accession number is in the first column, and the
+        remaining columns are the individual reads OR 2) it can contain only
+        accession numbers clustered in rows. This file refers to the "tips".
+        This is not the OTU .biom table.
+
+    tips_taxonomy_fh : filehandle
+        Tab-delimited text file related to "tips" wih the 1st column being an
+        accession number (same accession numbers in otu_file and
+        tips_taxonomy_fh) and the 2nd column is the taxonomy ranking in the
+        following format:
+        k__Fungi;p__Basidiomycota;c__Agaricomycetes;o__Sebacinales;
+        f__Sebacinaceae;g__unidentified;s__Sebacina
+
+    tips_seq_fh : filehandle
+        The .fasta formated sequences for the "tips" genetic dataset. Sequence
+        identifiers are the accession numbers. These accession numbers are
+        the same as in the otu_file and tips_taxonomy_fh.
+
     backbone_alignment_fh : filehandle
-        Filepath containing aligned sequences from a genetic marker database
-        in .fastq format.
+        File containing pre-aligned sequences from a genetic marker database
+        in .fasta format. This file refers to the "backbone" of the
+        ghost-tree.
 
-    all_genus_dic
-
-    Returns
-    _______
-
+    ghost_tree_fh : filehandle
+        The Newick formatted ghost-tree is the final output of the ghost-tree
+        tool.
 
     """
     global backbone_accession_genus_dic
     backbone_accession_genus_dic = {}
-    all_genus_dic = _make_tips_genus_accession_dic(otu_table_fh,
-                                                   tips_taxonomy_fh)
+    global seqs
+    # if no OTU text file, then make a "simulated OTU table" from OTU
+    tips_genus_accession_list_dic = _tips_genus_accession_dic(otu_file,
+                                                              tips_taxonomy_fh)
     skbio.write(_make_nr_backbone_alignment(backbone_alignment_fh,
-                all_genus_dic),
-                into="nr_backbone_alignment.fasta",
+                tips_genus_accession_list_dic),
+                into="nr_backbone_alignment_gt.fasta",
                 format="fasta")
-    backbone_tree = _make_backbone_tree("nr_backbone_alignment.fasta")
-    all_tips_seqs = Alignment.read(tips_seq_fh)  # not alignment; needed
-    # subset
-    # for node in the backbone tree
-    # Need to remove redundant seqs prior to making a tree
+    backbone_tree = _make_backbone_tree("nr_backbone_alignment_gt.fasta")
+    seqs = SequenceCollection.read(tips_seq_fh)
     for node in backbone_tree.tips():
         key_node, _ = str(node).split(":")
         key_node = backbone_accession_genus_dic[key_node]
         try:
-            otu_seqs = all_tips_seqs.subalignment(all_genus_dic[key_node])
-            mini_seq_file = open("mini_seq-gt.fasta", "w")
-            mini_seq_file.write(str(otu_seqs))
-            mini_seq_file.close()
-            os.system(""+muscledir+" -in mini_seq-gt.fasta -out" +
-                      " mini_alignment-gt.fasta -quiet -maxiters 2 -diags1")
-            os.system(""+ftdir+" -nt -quiet mini_alignment-gt.fasta >" +
-                      " mini_tree-gt.nwk")
-            mini_tree = read("mini_tree-gt.nwk", format='newick',
+            _make_mini_otu_files(key_node, tips_genus_accession_list_dic,
+                                 seqs)
+            os.system(""+muscledir+" -in mini_seq_gt.fasta -out" +
+                      " mini_alignment_gt.fasta -quiet -maxiters 2 -diags1")
+            os.system(""+ftdir+" -nt -quiet mini_alignment_gt.fasta >" +
+                      " mini_tree_gt.nwk")
+            mini_tree = read("mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
-            node.append(mini_tree)  # insert mini trees
+            node.append(mini_tree)
+            try:
+                os.remove("mini_seq_gt.fasta")
+            except:
+                pass
+            try:
+                os.remove("mini_alignment_gt.fasta")
+            except:
+                pass
+            try:
+                os.remove("mini_alignment_gt.fasta")
+            except:
+                pass
         except:
             continue
     ghost_tree_fp.write(str(backbone_tree))
     return str(backbone_tree).strip()
 
 
-"""
-complexity n^2; could be improved by having more genera than in tips file
-currently contains only genera in tips file = n^2
-Currently backbone is based on Accession number. Option to replace accession
-with genus
-"""
+def _make_mini_otu_files(key_node, tips_genus_accession_list_dic, seqs):
+    keep = tips_genus_accession_list_dic[key_node]
+    output_file = open("mini_seq_gt.fasta", "w")
+    for seq in seqs:
+        if seq.id in keep:
+            fasta_format = ">"+seq.id+"\n"+str(seq)+"\n"
+            output_file.write(fasta_format)
+    output_file.close()
+    return fasta_format
 
 
-def _make_nr_backbone_alignment(backbone_alignment_fh, all_genus_dic):
-    all_genus_list = all_genus_dic.keys()
-    global backbone_accession_genus_dic
-    backbone_accession_genus_dic = {}
-    # currently n^2 This will take a while :(  need to go through genus dic
-    # only need a backbone that contains seqs found in tips (genus_dic)
-    for seq in skbio.read(backbone_alignment_fh, format="fasta"):
-        try:
-            for i in all_genus_list:
-                if_case = (re.search(";" + i + ";", seq.description) or
-                           re.search("g__" + i + ";", seq.description))
-                if if_case:
-                    all_genus_list.remove(i)
-                    backbone_accession_genus_dic[seq.id] = i
-                    yield seq
-        except:
-            pass
-
-
-def _make_backbone_tree(in_name):
-    os.system(""+ftdir+" -nt -quiet "+in_name+" > nr_backbone_tree.nwk")
-    backbone_tree = TreeNode.read("nr_backbone_tree.nwk")
-    return backbone_tree
-
-
-def _make_tips_genus_accession_dic(otu_table_fh, tips_taxonomy_fh):
-    """Find representative genus for each "tip cluster"
-
-    This function takes in an OTU table file handle clustered at the user's
-    desired percent similarity. This OTU table can be clustered once (i.e.)
-    at 97 or 99 percent similarity) or can be from a secondary clustering step
-    to capture more of the unidentified sequences so that they will be
-    placed onto the final tree (see "ghost-tree group-tips"). Each OTU
-    group will be XXXX
-
-    Parameters
-    __________
-    otu_table_fh : filehandle
-        The OTU table filehandle will be an OTU table of clusters where each
-        line corresponds to a cluster of sequences represented by tab
-        delimited accession numbers. OTUs were clustered based on a user's
-        chosen percent similarity. First accession number can either be
-        duplicated or not duplicated depending on OTU table format.
-        example:
-        A111\tA111\tA112
-        A222\tA222\tA223
-        A333\tA333\tA334
-    tips_taxonomy_fh : filehandle
-        The taxonomy file handle will be in a tab delimited file containing
-        accession number and the corresponding taxonomy line. There are two
-        columns, which are accession number and taxonomy line. The taxonomy
-        line must be in the format =
-        k__fungi;p__phylum;c__class;o__order;f__family;g__genus;s__species
-        There are always two underscores following the taxonomy designation
-        which is typical for "QIIME style" taxonomy lines (cite).
-        example:
-        A112\tk__Fungi;p__Asco;c__Do;o__My;f__Els;g__Phoma;s__El
-    modified_otu_table_fh : filehandle
-        Table containing genus name and
-        modified_otu_table_NR_fh : filehandle
-        Needs to be non-redundant for genus, but contain groups of OTUs from
-        different lines and clusters XXXXX
-
-    Returns
-    _______
-    all_genus_dic : dict
-    """
+def _tips_genus_accession_dic(otu_file, tips_taxonomy_fh):
+    """Find representative genus for each "tip cluster" """
     accession_taxonomy_dic = _create_taxonomy_dic(tips_taxonomy_fh)
-    all_genera_list = []
-    global all_genus_dic
-    all_genus_dic = {}
-    for line in otu_table_fh:
+    all_genera_in_tips_list = []
+    global tips_genus_accession_list_dic
+    tips_genus_accession_list_dic = {}
+    for line in otu_file:
         accession_list = line.strip().split("\t")  # line's accession list
         if accession_list[0] == accession_list[1]:
             del accession_list[0]  # remove the duplicate if there is one
@@ -155,15 +125,22 @@ def _make_tips_genus_accession_dic(otu_table_fh, tips_taxonomy_fh):
             genus = genus[3:].capitalize()
             otu_genus_list.append(genus)
         most_common_genus = max(set(otu_genus_list), key=otu_genus_list.count)
-        # genus winner for OTU in line
-        all_genera_list.append(most_common_genus)  # genera for **ALL lines*
-        if most_common_genus not in all_genus_dic:
-            all_genus_dic[most_common_genus] = accession_list
+        if most_common_genus == "Unidentified":
+            otu_genus_set = set(otu_genus_list)
+            otu_genus_set.remove("Unidentified")
+            try:
+                most_common_genus = max(otu_genus_set,
+                                        key=otu_genus_list.count)
+            except:
+                pass
+        all_genera_in_tips_list.append(most_common_genus)
+        if most_common_genus not in tips_genus_accession_list_dic:
+            tips_genus_accession_list_dic[most_common_genus] = accession_list
         else:
             for i in accession_list:  # not efficient
-                all_genus_dic[most_common_genus].append(i)
-    otu_table_fh.close()
-    return all_genus_dic
+                tips_genus_accession_list_dic[most_common_genus].append(i)
+    otu_file.close()
+    return tips_genus_accession_list_dic
 
 
 def _create_taxonomy_dic(tips_taxonomy_fh):
@@ -178,6 +155,31 @@ def _create_taxonomy_dic(tips_taxonomy_fh):
     line = ""
     tips_taxonomy_fh.close()
     return accession_taxonomy_dic
+
+
+def _make_nr_backbone_alignment(backbone_alignment_fh,
+                                tips_genus_accession_list_dic):
+    all_genus_list = tips_genus_accession_list_dic.keys()
+    global backbone_accession_genus_dic
+    backbone_accession_genus_dic = {}
+    for seq in skbio.read(backbone_alignment_fh, format="fasta"):
+        try:
+            for i in all_genus_list:
+                if_case = (re.search(";" + i + ";", seq.description) or
+                           re.search("g__" + i + ";", seq.description))
+                if if_case:
+                    all_genus_list.remove(i)
+                    backbone_accession_genus_dic[seq.id] = i
+                    yield seq
+        except:
+            pass
+
+
+def _make_backbone_tree(in_name):
+    os.system(""+ftdir+" -nt -quiet "+in_name+" > nr_backbone_tree_gt.nwk")
+    backbone_tree = TreeNode.read("nr_backbone_tree_gt.nwk")
+    return backbone_tree
+
 
 muscledir = "/Applications/muscle"
 ftdir = "/Applications/./FastTree"
