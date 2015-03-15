@@ -18,6 +18,8 @@ def cli():
 
 # click command and args here are for the user
 # cli group is the "invisible" top level group
+
+
 @cli.command("compare-trees")
 @click.argument("tree-file1", type=click.File("U"))
 @click.argument("tree-file2", type=click.File("U"))
@@ -32,9 +34,11 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("p-value: %f" % p_value)
     click.echo("Number of overlapping tips: %d" % n)
 
+
 @click.group()
 def cli():
     pass
+
 
 @cli.command("filter-alignment-positions")
 @click.argument("alignment-file", type=click.File("U"))
@@ -44,14 +48,16 @@ def cli():
 def filter_alignment_positions(alignment_file, maximum_gap_frequency,
                                maximum_position_entropy, output_file):
     skbio.write(filter_positions(alignment_file, maximum_gap_frequency,
-                                 maximum_position_entropy),
-                                 into=output_file, format="fasta")
+                maximum_position_entropy), into=output_file,
+                format="fasta")
+
 
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
 @cli.group()
 def silva():
     pass
+
 
 @silva.command("extract-fungi")
 @click.argument("fasta-file", type=click.File("U"))
@@ -62,9 +68,11 @@ def extract_fungi(fasta_file, accession_file, taxonomy_file, output_file):
     skbio.write(fungi_from_fasta(fasta_file, accession_file, taxonomy_file),
                 into=output_file, format="fasta")
 
+
 @cli.group()
 def tips():
     pass
+
 
 @tips.command("group-tips")
 @click.argument("species-level-otus-file", type=click.File("U"))
@@ -73,9 +81,9 @@ def tips():
 def group_tips(species_level_otus_file, tip_taxonomy_file,
                fixed_species_level_otus_file):
     skbio.write(preprocess_tip_sequences(species_level_otus_file,
-                                         tip_taxonomy_file),
-                                         into=fixed_species_level_otus_file,
-                                         format="fasta")
+                tip_taxonomy_file), into=fixed_species_level_otus_file,
+                format="fasta")
+
 
 @tips.command("classify-tips")
 @click.argument("otu-table-file", type=click.File("U"))
@@ -87,11 +95,13 @@ def classify_tips(otu_table_file, taxonomy_file, otu_output_file,
     find_rep_otu_genus(otu_table_file, taxonomy_file, otu_output_file,
                        non_redundant_otu_output_file)
 
+
 @click.group()
 def cli():
     pass
 
-@scaffold.command("hybrid-tree")
+
+@cli.command("hybrid-tree")
 @click.argument("tips-otu-table", type=click.File("U"))
 @click.argument("tips-taxonomy-file", type=click.File("U"))
 @click.argument("tips-sequence-file", type=click.File("U"))
@@ -103,7 +113,6 @@ def hybrid_tree(tips_otu_table, tips_taxonomy_file, tips_sequence_file,
                                 tips_sequence_file,
                                 backbone_alignment_file,
                                 ghost_tree_output_file)
-
 
 
 if __name__ == "__main__":
