@@ -35,11 +35,6 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("Number of overlapping tips: %d" % n)
 
 
-@click.group()
-def cli():
-    pass
-
-
 @cli.command("filter-alignment-positions")
 @click.argument("alignment-file", type=click.File("U"))
 @click.argument("maximum-gap-frequency", type=float)
@@ -94,11 +89,6 @@ def classify_tips(otu_table_file, taxonomy_file, otu_output_file,
                   non_redundant_otu_output_file):
     find_rep_otu_genus(otu_table_file, taxonomy_file, otu_output_file,
                        non_redundant_otu_output_file)
-
-
-@click.group()
-def cli():
-    pass
 
 
 @cli.command("hybrid-tree")
