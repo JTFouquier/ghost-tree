@@ -23,7 +23,7 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
 
     Parameters
     __________
-    otu_file_fh_fh : filehandle
+    otu_file_fh : filehandle
         Tab-delimited text file containing OTU clusters in rows. Format can be
         1) where the accession number is in the first column with only one
         column or 2) it can contain accession numbers clustered in tab-
