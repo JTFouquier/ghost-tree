@@ -33,6 +33,6 @@ def preprocess_tip_sequences(tips_sequences_fh, similarity_threshold,
         Name of resulting OTU cluster formatted filehandle.
 
     """
-
+    similarity_threshold = str(similarity_threshold)
     os.system("sumaclust -g -f -t "+similarity_threshold+" -O " +
               "" + otu_formatted_fh + " " + tips_sequences_fh + "")
