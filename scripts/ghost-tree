@@ -66,9 +66,9 @@ def tips():
     pass
 
 @tips.command("group-tips")
-@click.argument("species-level-sequence-file", type=click.File("U"))
+@click.argument("species-level-sequence-file", type=str)
 @click.argument("similarity-threshold", type=float)
-@click.argument("output-file", type=click.File("w"))
+@click.argument("output-file", type=str)
 def group_tips(species_level_sequence_file, similarity_threshold,
                output_file):
     preprocess_tip_sequences(species_level_sequence_file,
