@@ -24,14 +24,14 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
     Parameters
     __________
     otu_file_fh : filehandle
-        Tab-delimited text file containing OTU clusters in rows. Format can be
-        1) where the accession number is in the first column with only one
-        column or 2) it can contain accession numbers clustered in tab-
-        delimited rows containing more accession numbers, which are part of
-        that OTU cluster (as in output of "ghost-tree group-tips").
-        This file refers to the "tips". File references to sequence reads or
-        sample numbers/names are not valid here. This is not an OTU .biom
-        table.
+        Tab-delimited text file containing OTU clusters in rows containing
+        accession numbers only. Format can be 1) where the accession number
+        is in the first column with only one column or 2) it can contain
+        accession numbers clustered in tab-delimited rows containing more
+        accession numbers, which are part of that OTU cluster (as in output of
+        "ghost-tree group-tips"). This file refers to the "tips". File
+        references to sequence reads or sample numbers/names are not valid
+        here. This is not an OTU .biom table.
 
     tips_taxonomy_fh : filehandle
         Tab-delimited text file related to "tips" wih the 1st column being an
@@ -56,10 +56,11 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
         tool.
 
     """
+    os.system("mkdir tmp")
     global backbone_accession_genus_dic
     backbone_accession_genus_dic = {}
     global seqs
-    # if no OTU text file, then make a "simulated OTU table" from OTU
+    # if no OTU text file, then make a "simulated OTU file" from OTU
     tips_genus_accession_list_dic = _tips_genus_accession_dic(otu_file_fh,
                                                               tips_taxonomy_fh)
     skbio.write(_make_nr_backbone_alignment(backbone_alignment_fh,
@@ -74,34 +75,24 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
         try:
             _make_mini_otu_files(key_node, tips_genus_accession_list_dic,
                                  seqs)
-            os.system(""+muscledir+" -in mini_seq_gt.fasta -out" +
-                      " mini_alignment_gt.fasta -quiet -maxiters 2 -diags1")
-            os.system(""+ftdir+" -nt -quiet mini_alignment_gt.fasta >" +
-                      " mini_tree_gt.nwk")
-            mini_tree = read("mini_tree_gt.nwk", format='newick',
+            os.system("muscle -in tmp/mini_seq_gt.fasta -out" +
+                      " tmp/mini_alignment_gt.fasta -quiet" +
+                      " -maxiters 2 -diags1")
+            os.system("fasttree -nt -quiet tmp/mini_alignment_gt.fasta >" +
+                      " tmp/mini_tree_gt.nwk")
+            mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
             node.append(mini_tree)
-            try:
-                os.remove("mini_seq_gt.fasta")
-            except:
-                pass
-            try:
-                os.remove("mini_alignment_gt.fasta")
-            except:
-                pass
-            try:
-                os.remove("mini_alignment_gt.fasta")
-            except:
-                pass
         except:
             continue
+    os.system("rm -r tmp")
     ghost_tree_fp.write(str(backbone_tree))
     return str(backbone_tree).strip()
 
 
 def _make_mini_otu_files(key_node, tips_genus_accession_list_dic, seqs):
     keep = tips_genus_accession_list_dic[key_node]
-    output_file = open("mini_seq_gt.fasta", "w")
+    output_file = open("tmp/mini_seq_gt.fasta", "w")
     for seq in seqs:
         if seq.id in keep:
             fasta_format = ">"+seq.id+"\n"+str(seq)+"\n"
@@ -179,10 +170,6 @@ def _make_nr_backbone_alignment(backbone_alignment_fh,
 
 
 def _make_backbone_tree(in_name):
-    os.system(""+ftdir+" -nt -quiet "+in_name+" > nr_backbone_tree_gt.nwk")
+    os.system("fasttree -nt -quiet "+in_name+" > nr_backbone_tree_gt.nwk")
     backbone_tree = TreeNode.read("nr_backbone_tree_gt.nwk")
     return backbone_tree
-
-
-muscledir = "/Applications/muscle"
-ftdir = "/Applications/./FastTree"

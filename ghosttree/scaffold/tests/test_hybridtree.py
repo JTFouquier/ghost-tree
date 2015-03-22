@@ -1,4 +1,5 @@
 import unittest
+import os
 from StringIO import StringIO
 
 from skbio import BiologicalSequence
@@ -56,6 +57,7 @@ class TestScaffoldTipsIntoBackbone(unittest.TestCase):
             list(_create_taxonomy_dic(self.tips_taxonomy_none))
 
     def test_make_mini_otu_files(self):
+        os.system("mkdir tmp")
         self.tips_sequences = SequenceCollection.read(self.tips_sequences)
         result = _make_mini_otu_files(self.key_node, self.tips_genus_dic_few,
                                       self.tips_sequences)
