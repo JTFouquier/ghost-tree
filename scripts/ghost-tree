@@ -31,10 +31,6 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("p-value: %f" % p_value)
     click.echo("Number of overlapping tips: %d" % n)
 
-@click.group()
-def cli():
-    pass
-
 @cli.command("filter-alignment-positions")
 @click.argument("alignment-file", type=click.File("U"))
 @click.argument("maximum-gap-frequency", type=float)
