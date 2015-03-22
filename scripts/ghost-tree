@@ -7,7 +7,6 @@ import skbio
 from ghosttree.util import compare_tip_to_tip_distances
 from ghosttree.filter import filter_positions
 from ghosttree.tips.cluster import preprocess_tip_sequences
-from ghosttree.tips.classifytips import find_rep_otu_genus
 from ghosttree.silva.filter import fungi_from_fasta
 from ghosttree.scaffold.hybridtree import scaffold_tips_into_backbone
 
@@ -67,25 +66,14 @@ def tips():
     pass
 
 @tips.command("group-tips")
-@click.argument("species-level-otus-file", type=click.File("U"))
-@click.argument("tip-taxonomy-file", type=click.File("U"))
-@click.argument("fixed-species-level-otus-file", type=click.File("w"))
-def group_tips(species_level_otus_file, tip_taxonomy_file,
-               fixed_species_level_otus_file):
-    skbio.write(preprocess_tip_sequences(species_level_otus_file,
-                                         tip_taxonomy_file),
-                                         into=fixed_species_level_otus_file,
-                                         format="fasta")
-
-@tips.command("classify-tips")
-@click.argument("otu-table-file", type=click.File("U"))
-@click.argument("taxonomy-file", type=click.File("U"))
-@click.argument("otu-output-file", type=click.File("w"))
-@click.argument("non-redundant-otu-output-file", type=click.File("w"))
-def classify_tips(otu_table_file, taxonomy_file, otu_output_file,
-                  non_redundant_otu_output_file):
-    find_rep_otu_genus(otu_table_file, taxonomy_file, otu_output_file,
-                       non_redundant_otu_output_file)
+@click.argument("species-level-sequence-file", type=click.File("U"))
+@click.argument("similarity-threshold", type=float)
+@click.argument("output-file", type=click.File("w"))
+def group_tips(species_level_sequence_file, similarity_threshold,
+               output_file):
+    preprocess_tip_sequences(species_level_sequence_file,
+                             similarity_threshold,
+                             output_file)
 
 @cli.group()
 def scaffold():
