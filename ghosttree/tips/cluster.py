@@ -1,8 +1,8 @@
 import os
 
 
-def preprocess_tip_sequences(tips_sequences_fh, similarity_threshold,
-                             otu_formatted_fh):
+def preprocess_tip_sequences(tips_sequences_fp, similarity_threshold,
+                             otu_formatted_fp):
     """Creates an OTU cluster formatted file from a .fasta sequence file.
 
     Creates an OTU cluster formatted file from a sequence file in .fasta
@@ -18,7 +18,7 @@ def preprocess_tip_sequences(tips_sequences_fh, similarity_threshold,
 
     Parameters
     __________
-    tips_sequences_fh : filehandle
+    tips_sequences_fp : filepath
         Must be a .fasta formatted file from a database or representative
         sequences from a dataset. Usually these are 97 or 99 percent OTU
         sequences.
@@ -29,10 +29,10 @@ def preprocess_tip_sequences(tips_sequences_fh, similarity_threshold,
         will alter the resulting tree improving or reducing its utility in
         diversity analyses and should be performed with caution.
 
-    otu_formatted_fh : filehandle
+    otu_formatted_fp : filepath
         Name of resulting OTU cluster formatted filehandle.
 
     """
     similarity_threshold = str(similarity_threshold)
     os.system("sumaclust -g -f -t "+similarity_threshold+" -O " +
-              "" + otu_formatted_fh + " " + tips_sequences_fh + "")
+              "" + otu_formatted_fp + " " + tips_sequences_fp + "")
