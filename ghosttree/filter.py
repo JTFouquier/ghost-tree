@@ -1,10 +1,11 @@
 
 import skbio
 
-import numpy as np
-# unit testing here is going to be difficult. Maybe move these into two
-# functions
-# I made three functions... and yes unit testing is a difficult here....
+"""
+unit testing here is going to be difficult. Maybe move these into two
+functions
+I made three functions... and yes unit testing is a difficult here....
+"""
 
 
 def filter_positions(alignment_fh, maximum_gap_frequency,
@@ -17,7 +18,6 @@ def filter_positions(alignment_fh, maximum_gap_frequency,
 
 
 def _filter_gap_positions(aln, maximum_gap_frequency):
-    aln = aln.omit_gap_positions(1.0 - np.finfo(float).eps)
     aln = aln.omit_gap_positions(maximum_gap_frequency)
     return aln
 
