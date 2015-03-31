@@ -82,7 +82,7 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
                       " tmp/mini_tree_gt.nwk")
             mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
-            node.append(mini_tree)
+            node.extend(mini_tree.children)
         except:
             continue
     os.system("rm -r tmp")
