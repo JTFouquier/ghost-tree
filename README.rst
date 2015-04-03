@@ -10,10 +10,7 @@ provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
 This project is currently under active development. If you're interested in
-contributing, please contact [JTFouquier](https://github.com/JTFouquier).
-
-*update 3/8/15: Build Status is failing due to dependent software related issues.
-ghost-tree is fully functional locally.  
+contributing, please contact [JTFouquier](https://github.com/JTFouquier). 
 
 .. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
    :target: https://travis-ci.org/JTFouquier/ghost-tree
