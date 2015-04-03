@@ -1,12 +1,6 @@
 
 import skbio
 
-"""
-unit testing here is going to be difficult. Maybe move these into two
-functions
-I made three functions... and yes unit testing is a difficult here....
-"""
-
 
 def filter_positions(alignment_fh, maximum_gap_frequency,
                      maximum_position_entropy):
