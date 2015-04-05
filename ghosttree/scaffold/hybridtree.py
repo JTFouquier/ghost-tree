@@ -60,7 +60,6 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
     global backbone_accession_genus_dic
     backbone_accession_genus_dic = {}
     global seqs
-    # if no OTU text file, then make a "simulated OTU file" from OTU
     tips_genus_accession_list_dic = _tips_genus_accession_dic(otu_file_fh,
                                                               tips_taxonomy_fh)
     skbio.write(_make_nr_backbone_alignment(backbone_alignment_fh,
@@ -82,7 +81,7 @@ def scaffold_tips_into_backbone(otu_file_fh, tips_taxonomy_fh, tips_seq_fh,
                       " tmp/mini_tree_gt.nwk")
             mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
-            node.extend(mini_tree)
+            node.extend(mini_tree.children[:])
         except:
             continue
     os.system("rm -r tmp")
@@ -108,10 +107,10 @@ def _tips_genus_accession_dic(otu_file_fh, tips_taxonomy_fh):
     global tips_genus_accession_list_dic
     tips_genus_accession_list_dic = {}
     for line in otu_file_fh:
-        accession_list = line.strip().split("\t")  # line's accession list
+        accession_list = line.strip().split("\t")
         if accession_list[0] == accession_list[1]:
-            del accession_list[0]  # remove the duplicate if there is one
-        otu_genus_list = []  # changes for each OTU
+            del accession_list[0]
+        otu_genus_list = []
         for i in accession_list:
             full_taxonomy_line = accession_taxonomy_dic[i]
             genus = full_taxonomy_line.split(";")
@@ -131,7 +130,7 @@ def _tips_genus_accession_dic(otu_file_fh, tips_taxonomy_fh):
         if most_common_genus not in tips_genus_accession_list_dic:
             tips_genus_accession_list_dic[most_common_genus] = accession_list
         else:
-            for i in accession_list:  # not efficient
+            for i in accession_list:
                 tips_genus_accession_list_dic[most_common_genus].append(i)
     otu_file_fh.close()
     return tips_genus_accession_list_dic
