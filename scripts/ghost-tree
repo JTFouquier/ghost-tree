@@ -13,6 +13,27 @@ from ghosttree.scaffold.hybridtree import scaffold_extensions_into_foundation
 
 @click.group()
 def cli():
+    """\n\n
+    ___________________________________________________________________
+
+    ghost-tree: a tool for creating hybrid-gene phylogenetic trees for
+    diversity analyses. (https://github.com/JTFouquier/ghost-tree)
+    ___________________________________________________________________
+
+    For dependent software installation instructions please see:
+    https://github.com/JTFouquier/ghost-tree/blob/master/README.rst
+
+    -> For more detailed help with each command, enter --help
+    (e.g. 'ghost-tree scaffold hybrid-tree --help').
+
+    -> There are three 'command groups' (silva, extensions, and scaffold),
+    which include additional subcommands. (e.g. enter 'ghost-tree silva' and
+    you will see the command 'ghost-tree silva extract-fungi')
+
+    -> Arguments must be entered in order, without "-"/dashes.
+
+    ___________________________________________________________________
+    """
     pass
 
 # click command and args here are for the user
@@ -24,6 +45,8 @@ def cli():
               type=click.Choice(["pearson", "spearman"]),
               help="correlation method to use in Mantel test")
 def compare_trees(tree_file1, tree_file2, method):
+    """Creates distance matrices for two trees (tree-file1 and tree-file2) and
+    finds the correlation between the trees using a Mantel test."""
     coeff, p_value, n = compare_tip_to_tip_distances(tree_file1,
                                                      tree_file2,
                                                      method)
@@ -32,33 +55,70 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("Number of overlapping tips: %d" % n)
 
 @cli.command("filter-alignment-positions")
-@click.argument("alignment-file", type=click.File("U"))
+@click.argument("foundation-alignment-file", type=click.File("U"))
 @click.argument("maximum-gap-frequency", type=float)
 @click.argument("maximum-position-entropy", type=float)
-@click.argument("output-file", type=click.File("w"))
-def filter_alignment_positions(alignment_file, maximum_gap_frequency,
+@click.argument("output-alignment-file", type=click.File("w"))
+def filter_alignment_positions(foundation_alignment_file,
+                               maximum_gap_frequency,
                                maximum_position_entropy, output_file):
-    skbio.write(filter_positions(alignment_file, maximum_gap_frequency,
+    """Filters an alignment file based
+    on positional properties. This command takes a foundation-alignment-file
+    and uses the maximum-gap-frequency (e.g. 0.50)
+    and maximum-position-entropy (e.g. 0.80) arguments to filter positions
+    and return a new alignment output-file. Typically users would want to
+    remove high gap positions and high entropy positions."""
+    skbio.write(filter_positions(foundation_alignment_file,
+                                 maximum_gap_frequency,
                                  maximum_position_entropy),
-                                 into=output_file, format="fasta")
+                                 into=output_alignment_file, format="fasta")
 
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
 @cli.group()
 def silva():
+    """Command group for SILVA rRNA database alignment files"""
     pass
 
 @silva.command("extract-fungi")
-@click.argument("fasta-file", type=click.File("U"))
+@click.argument("aligned-fasta-file", type=click.File("U"))
 @click.argument("accession-file", type=click.File("U"))
 @click.argument("taxonomy-file", type=click.File("U"))
 @click.argument("output-file", type=click.File("w"))
-def extract_fungi(fasta_file, accession_file, taxonomy_file, output_file):
-    skbio.write(fungi_from_fasta(fasta_file, accession_file, taxonomy_file),
+def extract_fungi(aligned_fasta_file, accession_file, taxonomy_file,
+                  output_file):
+    """'extract-fungi' uses files that are unique to the
+    SILVA rRNA database project. http://www.arb-silva.de/.
+    Because SILVA database provides information for many organisms,
+    this script is designed to extract the fungi from a large database.
+
+    Arguments:
+
+    1) aligned-fasta-file:
+    SILVA sequences. Each sequence identifier must be an accession number.
+
+    2) accession-file:
+    A tab-separated file mapping accession numbers to a mapping number in
+    `taxonomy_map`. This file should contain exactly two columns:
+    accession number and mapping number.
+
+    3) taxonomy_file:
+    A tab-separated file that identifes the taxonomy and rank of a mapping
+    number in `accession_fh`. This file should contain exactly five
+    columns beginning with taxonomy, mapping number and rank. The last two
+    columns are ignored.
+
+    4) output-file:
+    The resulting SILVA alignment file to use for the foundation of the
+    ghost-tree, if SILVA is your selected foundation database.
+
+    """
+    skbio.write(fungi_from_fasta(aligned_fasta_file, accession_file, taxonomy_file),
                 into=output_file, format="fasta")
 
 @cli.group()
 def extensions():
+    """Command group for preprocessing 'extension trees'"""
     pass
 
 @extensions.command("group-extensions")
@@ -67,12 +127,24 @@ def extensions():
 @click.argument("output-file", type=str)
 def group_extensions(species_level_sequence_file, similarity_threshold,
                      output_file):
+    """Creates an OTU map from a sequence file in .fasta format using SUMACLUST
+    (http://metabarcoding.org/sumatra). Sequence file can be from a database or
+    from representative sequences specific to one's own dataset. OTU clusters
+    will be created according to the threshold. The lower the threshold, the
+    more "unidentified" sequences will be accounted for because they will be
+    grouped with other identified fungi, but this will create
+    larger "extension tree" groups that form less accurate multiple sequence
+    alignments. Changing the threshold value to a number drastically different
+    from the standard 97 or 99 OTU similarity will alter the resulting tree
+    improving or reducing its utility in diversity analyses and should be
+    performed with caution.' """
     preprocess_extension_sequences(species_level_sequence_file,
                                    similarity_threshold,
                                    output_file)
 
 @cli.group()
 def scaffold():
+    """Command group for creating hybrid-gene trees."""
     pass
 
 @scaffold.command("hybrid-tree")
@@ -84,6 +156,55 @@ def scaffold():
 def hybrid_tree(extension_trees_otu_map, extension_trees_taxonomy_file,
                 extension_trees_sequence_file, foundation_alignment_file,
                 ghost_tree_output_file):
+    """Combines two genetic databases into
+    one phylogenetic tree and is the final command in ghost-tree.
+
+    Some genetic databases provide finer taxonomic resolution, but high
+    sequence variability causes poor multiple sequence alignments
+    (these are the "extension trees").
+
+    Other databases provide high quality phylogenetic information (hence it
+    is used as the "foundation"), but poor taxonomic resolution.
+
+    The output file is one phylogenetic tree in .nwk format, which has the
+    benefits of both databases, but allowing sequencing to be performed using
+    only one primer set, the"extension trees" primer set.
+
+    Arguments:
+
+    1) extension-trees-otu-map:
+    Tab-delimited text file containing OTU clusters in rows containing
+    accession numbers only. Format can be 1) where the accession number
+    is in the first column with only one column or 2) it can contain
+    accession numbers clustered in tab-delimited rows containing more
+    accession numbers, which are part of that OTU cluster (as in output of
+    "ghost-tree group-extensions"). This file refers to the "extension
+    trees". File references to sequence reads or sample numbers/names are
+    not valid here. This is not an OTU .biom table.
+
+    2) extension-trees-taxonomy-file:
+    Tab-delimited text file related to "extension trees" wih the 1st
+    column being an accession number (same accession numbers in
+    extension-trees-otu-map and extension-trees-taxonomy-file) and the 2nd
+    column is the taxonomy ranking in the following format:
+    k__Fungi;p__Basidiomycota;c__Agaricomycetes;o__Sebacinales;
+    f__Sebacinaceae;g__unidentified;s__Sebacina
+
+    3) extension-trees-sequence-file:
+    The .fasta formated sequences for the "extension trees" genetic
+    dataset. Sequence identifiers are the accession numbers. These
+    accession numbers are the same as in the extension-trees-otu-map and
+    extension-trees-taxonomy-file.
+
+    4) foundation-alignment-file:
+    File containing pre-aligned sequences from a genetic marker database
+    in .fasta format. This file refers to the "foundation" of the
+    ghost-tree. Contains accession numbers and taxonomy labels.
+
+    5) ghost-tree-output-file:
+    The Newick formatted ghost-tree is the final output of the ghost-tree
+    tool. This is a phylogenetic tree designed for downstream diversity
+    analyses."""
     scaffold_extensions_into_foundation(extension_trees_otu_map,
                                         extension_trees_taxonomy_file,
                                         extension_trees_sequence_file,
