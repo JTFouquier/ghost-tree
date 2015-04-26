@@ -62,6 +62,7 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         result = _make_mini_otu_files(self.key_node,
                                       self.extension_genus_dic_few,
                                       self.extension_seqs)
+        os.system("rm -r tmp")
         self.assertEqual(result, """>P1\nTTAAAAAA\n""")
         # only one loop, therefor only testing one returned sequence from list
         # with two sequence accession numbers
