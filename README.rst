@@ -29,8 +29,7 @@ To test this you should be able to type “muscle, fasttree or sumaclust” from
 command line and see the “usage” or “help” documentation for each
 software tool.
 
-This project is currently under active development. If you have any issues,
-we really appreciate reporting them. If you're interested in
+This project is currently under active development. If you're interested in
 contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
 
 .. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
