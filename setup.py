@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-# copied and modified from https://github.com/biocore/scikit-bio
+
+# setup.py copied and modified from https://github.com/biocore/scikit-bio
 from setuptools import find_packages, setup
 from glob import glob
+
 __version__ = "0.0.1-dev"
 
 classes = """
     Development Status :: 1 - Planning
+    License :: OSI Approved :: BSD License
     Topic :: Scientific/Engineering
     Topic :: Scientific/Engineering :: Bio-Informatics
     Programming Language :: Python :: 2.7
@@ -22,17 +25,17 @@ with open('README.rst') as f:
 
 setup(name='ghost-tree',
       version=__version__,
+      license='BSD',
       description=description,
       long_description=long_description,
-      author="Jennifer Fouquier",
+      author="ghost-tree development team",
       author_email="jennietf@gmail.com",
-      maintainer="Jennifer Fouquier",
+      maintainer="ghost-tree development team",
       maintainer_email="jennietf@gmail.com",
       test_suite='nose.collector',
       packages=find_packages(),
       scripts=glob("scripts/*"),
-      install_requires=['scikit-bio>=0.2.3', 'click'],
-      extras_require={'test': ["nose >= 0.10.1", "pep8", "flake8"],
-                      'doc': ["Sphinx"]},
-      classifiers=classifiers,
+      install_requires=['scikit-bio >= 0.2.3, < 0.3.0', 'click >= 4.0'],
+      extras_require={'test': ["nose >= 0.10.1", "pep8", "flake8"]},
+      classifiers=classifiers
       )
