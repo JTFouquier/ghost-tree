@@ -72,7 +72,8 @@ def filter_alignment_positions(foundation_alignment_file,
     skbio.write(filter_positions(foundation_alignment_file,
                                  maximum_gap_frequency,
                                  maximum_position_entropy),
-                                 into=output_alignment_file, format="fasta")
+                into=output_alignment_file,
+                format="fasta")
 
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
