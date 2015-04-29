@@ -74,7 +74,7 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
                 format="fasta")
     foundation_tree = _make_foundation_tree("nr_foundation_alignment_gt.fasta")
     seqs = SequenceCollection.read(extension_seq_fh)
-    for node in foundation_tree.extension():
+    for node in foundation_tree.tips():
         key_node, _ = str(node).split(":")
         key_node = foundation_accession_genus_dic[key_node]
         try:

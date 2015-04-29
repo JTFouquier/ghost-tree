@@ -138,7 +138,7 @@ def group_extensions(species_level_sequence_file, similarity_threshold,
     from the standard 97 or 99 OTU similarity will alter the resulting tree
     improving or reducing its utility in diversity analyses and should be
     performed with caution.' """
-    preprocess_extension_sequences(species_level_sequence_file,
+    preprocess_extension_tree_sequences(species_level_sequence_file,
                                    similarity_threshold,
                                    output_file)
 
