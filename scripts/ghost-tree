@@ -61,7 +61,8 @@ def compare_trees(tree_file1, tree_file2, method):
 @click.argument("output-alignment-file", type=click.File("w"))
 def filter_alignment_positions(foundation_alignment_file,
                                maximum_gap_frequency,
-                               maximum_position_entropy, output_file):
+                               maximum_position_entropy,
+                               output_alignment_file):
     """Filters an alignment file based
     on positional properties. This command takes a foundation-alignment-file
     and uses the maximum-gap-frequency (e.g. 0.50)
@@ -71,7 +72,8 @@ def filter_alignment_positions(foundation_alignment_file,
     skbio.write(filter_positions(foundation_alignment_file,
                                  maximum_gap_frequency,
                                  maximum_position_entropy),
-                                 into=output_alignment_file, format="fasta")
+                into=output_alignment_file,
+                format="fasta")
 
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
