@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-# third party dependencies (i.e. packages not included with python)
+# ----------------------------------------------------------------------------
+# Copyright (c) 2015--, ghost-tree development team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the LICENSE file, distributed with this software.
+# ----------------------------------------------------------------------------
+
+
 import click
 import skbio
 
@@ -38,6 +46,8 @@ def cli():
 
 # click command and args here are for the user
 # cli group is the "invisible" top level group
+
+
 @cli.command("compare-trees")
 @click.argument("tree-file1", type=click.File("U"))
 @click.argument("tree-file2", type=click.File("U"))
@@ -53,6 +63,7 @@ def compare_trees(tree_file1, tree_file2, method):
     click.echo("Correlation coefficient: %f" % coeff)
     click.echo("p-value: %f" % p_value)
     click.echo("Number of overlapping tips: %d" % n)
+
 
 @cli.command("filter-alignment-positions")
 @click.argument("foundation-alignment-file", type=click.File("U"))
@@ -75,12 +86,14 @@ def filter_alignment_positions(foundation_alignment_file,
                 into=output_alignment_file,
                 format="fasta")
 
+
 # silva is nested under cli group (silva shows up on command line
 # interface but cli does not
 @cli.group()
 def silva():
     """Command group for SILVA rRNA database alignment files"""
     pass
+
 
 @silva.command("extract-fungi")
 @click.argument("aligned-fasta-file", type=click.File("U"))
@@ -115,13 +128,15 @@ def extract_fungi(aligned_fasta_file, accession_file, taxonomy_file,
     ghost-tree, if SILVA is your selected foundation database.
 
     """
-    skbio.write(fungi_from_fasta(aligned_fasta_file, accession_file, taxonomy_file),
-                into=output_file, format="fasta")
+    skbio.write(fungi_from_fasta(aligned_fasta_file, accession_file,
+                taxonomy_file), into=output_file, format="fasta")
+
 
 @cli.group()
 def extensions():
     """Command group for preprocessing 'extension trees'"""
     pass
+
 
 @extensions.command("group-extensions")
 @click.argument("species-level-sequence-file", type=str)
@@ -141,13 +156,15 @@ def group_extensions(species_level_sequence_file, similarity_threshold,
     improving or reducing its utility in diversity analyses and should be
     performed with caution.' """
     preprocess_extension_tree_sequences(species_level_sequence_file,
-                                   similarity_threshold,
-                                   output_file)
+                                        similarity_threshold,
+                                        output_file)
+
 
 @cli.group()
 def scaffold():
     """Command group for creating hybrid-gene trees."""
     pass
+
 
 @scaffold.command("hybrid-tree")
 @click.argument("extension-trees-otu-map", type=click.File("U"))
@@ -212,7 +229,6 @@ def hybrid_tree(extension_trees_otu_map, extension_trees_taxonomy_file,
                                         extension_trees_sequence_file,
                                         foundation_alignment_file,
                                         ghost_tree_output_file)
-
 
 
 if __name__ == "__main__":
