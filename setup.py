@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-
+# ----------------------------------------------------------------------------
+# Copyright (c) 2015--, ghost-tree development team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the LICENSE file, distributed with this software.
+# ----------------------------------------------------------------------------
 # setup.py copied and modified from https://github.com/biocore/scikit-bio
 from setuptools import find_packages, setup
 from glob import glob
@@ -18,7 +24,7 @@ classes = """
 """
 classifiers = [s.strip() for s in classes.split('\n') if s]
 
-description = ('Tool for creating hybrid 18S + ITS fungal phylogenetic trees')
+description = ('Tool for creating hybrid-gene phylogenetic trees')
 
 with open('README.rst') as f:
     long_description = f.read()
