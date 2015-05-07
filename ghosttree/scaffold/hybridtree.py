@@ -87,7 +87,7 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
                       " tmp/mini_tree_gt.nwk")
             mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
-            node.extend(mini_tree.children[:])
+            node.extend(mini_tree.root_at_midpoint().children[:])
         except:
             continue
     os.system("rm -r tmp")
