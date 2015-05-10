@@ -7,6 +7,8 @@
 # ----------------------------------------------------------------------------
 import re
 import os
+import shutil
+import subprocess
 
 import skbio
 
@@ -68,10 +70,24 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
         analyses.
 
     """
-    os.system("mkdir tmp")
-    global foundation_accession_genus_dic
+    global foundation_accession_genus_dic  # needs global assignment for flake8
     foundation_accession_genus_dic = {}
-    global seqs
+    ghost_tree_output = str(ghost_tree_fp)
+    ghost_tree_output = ghost_tree_output[16:-4]
+    process = subprocess.Popen("muscle", shell=True, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output, error = process.communicate()
+    if re.search("command not found", error):
+        print "muscle, multiple sequence aligner, is not found. Is it" \
+              " installed? Is it in your path?"
+    process = subprocess.Popen("fasttree", shell=True, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output, error = process.communicate()
+    if re.search("command not found", error):
+        print "fasttree, phylogenetic tree builder, is not found. Is it" \
+              " installed? Is it in your path?"
+    os.mkdir("tmp")
+    logfile = open("ghost-tree_log_"+ghost_tree_output+".txt", "w")
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dic(otu_file_fh,
                                        extension_taxonomy_fh)
@@ -79,7 +95,8 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
                 extension_genus_accession_list_dic),
                 into="nr_foundation_alignment_gt.fasta",
                 format="fasta")
-    foundation_tree = _make_foundation_tree("nr_foundation_alignment_gt.fasta")
+    foundation_tree = _make_foundation_tree("nr_foundation_alignment_gt.fasta",
+                                            logfile)
     seqs = SequenceCollection.read(extension_seq_fh)
     for node in foundation_tree.tips():
         key_node, _ = str(node).split(":")
@@ -87,18 +104,29 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
         try:
             _make_mini_otu_files(key_node, extension_genus_accession_list_dic,
                                  seqs)
-            os.system("muscle -in tmp/mini_seq_gt.fasta -out" +
-                      " tmp/mini_alignment_gt.fasta -quiet" +
-                      " -maxiters 2 -diags1")
-            os.system("fasttree -nt -quiet tmp/mini_alignment_gt.fasta >" +
-                      " tmp/mini_tree_gt.nwk")
+            process = subprocess.Popen("muscle -in tmp/mini_seq_gt.fasta" +
+                                       " -out" +
+                                       " tmp/mini_alignment_gt.fasta -quiet" +
+                                       " -maxiters 2 -diags1", shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            output, error = process.communicate()
+            process = subprocess.Popen("fasttree -nt -quiet" +
+                                       " tmp/mini_alignment_gt.fasta >" +
+                                       " tmp/mini_tree_gt.nwk", shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            output, error = process.communicate()
+            logfile.write("FastTree warnings for genus "+key_node+" are:\n" +
+                          error + "\n")
             mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
             node.extend(mini_tree.root_at_midpoint().children[:])
         except:
             continue
-    os.system("rm -r tmp")
+    shutil.rmtree("tmp")
     ghost_tree_fp.write(str(foundation_tree))
+    logfile.close()
     return str(foundation_tree).strip()
 
 
@@ -117,7 +145,6 @@ def _extension_genus_accession_dic(otu_file_fh, extension_taxonomy_fh):
     """Find representative genus for each "extension tree cluster" """
     accession_taxonomy_dic = _create_taxonomy_dic(extension_taxonomy_fh)
     all_genera_in_extension_list = []
-    global extension_genus_accession_list_dic
     extension_genus_accession_list_dic = {}
     for line in otu_file_fh:
         accession_list = line.strip().split("\t")
@@ -182,7 +209,12 @@ def _make_nr_foundation_alignment(foundation_alignment_fh,
             pass
 
 
-def _make_foundation_tree(in_name):
-    os.system("fasttree -nt -quiet "+in_name+" > nr_foundation_tree_gt.nwk")
+def _make_foundation_tree(in_name, logfile):
+    process = subprocess.Popen("fasttree -nt -quiet "+in_name+"" +
+                               " > nr_foundation_tree_gt.nwk", shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    output, error = process.communicate()
+    logfile.write("foundation_tree FastTree warnings are:\n"+error)
     foundation_tree = TreeNode.read("nr_foundation_tree_gt.nwk")
     return foundation_tree
