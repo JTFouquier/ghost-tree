@@ -6,7 +6,7 @@ Trees Repository
 
 
 Here is the ghost-tree repository of pre-constructed trees for fungi when you
-sequenced using ITS sequences (including ITS-1 or ITS-2). Most users can find
+sequenced using the ITS region (including ITS-1 or ITS-2). Most users can find
 their tree here and not have to install ghost-tree.  You can use these trees
 for downstream diversity analyses (e.g., to make phylogenetic PCoA plots).
 
