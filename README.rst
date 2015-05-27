@@ -3,6 +3,9 @@ ghost-tree
 
 |Build Status| |Coverage Status|
 
+**UPDATE** 05/26/15: Please see the "trees" folder to download pre-built 
+reference phylogenetic trees. 
+
 ghost-tree is a bioinformatics tool that combines sequence data from two
 genetic marker databases into one phylogenetic tree that can be used for
 diversity analyses. One database is used as a backbone or scaffold because it
