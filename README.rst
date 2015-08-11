@@ -32,12 +32,12 @@ you'd use the corresponding ghost-tree listed below:
 Using ghost-tree.nwk files for your analyses:
 =============================================
 
-To use the ghost-tree.nwk files in scripts such as
-beta_diversity_through_plots.py in QIIME, you will need to filter your .biom
-table so that it doesn't contain extra OTUs that will cause
-beta_diversity_through_plots.py to fail. Note: We understand that QIIME isn't
-the only downstream use for ghost-tree, but this has been a popular user
-request.
+To use the ghost-tree.nwk files in scripts, such as
+`beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
+in QIIME, you will need to filter your .biom table so that it doesn't contain
+extra OTUs that will cause `beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_ to fail.
+Note: We understand that QIIME isn't the only downstream use for ghost-tree,
+but this has been a popular user request.
 
 This file, `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_,
 can be downloaded and used to create a .txt file containing only the accession
@@ -48,7 +48,7 @@ You must have skbio installed to use `get_otus_from_ghost_tree.py <https://githu
 See `scikit-bio <http://scikit-bio.org/>`_ for install directions. scikit-bio
 is very handy! You'll love it.
 
-You will then use `ghost_tree_tips.txt` output file (containing the accession
+You will then use ``ghost_tree_tips.txt`` output file (containing the accession
 numbers from the ghost-tree.nwk) to filter your .biom table so that it contains
 only the OTUs that are in the ghost-tree.nwk that you are using.
 
@@ -63,12 +63,12 @@ the following two arguments:
 (this will keep OTUs in otu_ids_to_exclude_fp, rather than discard them)
 
 You should then have your filtered .biom table, a ghost-tree.nwk, and a mapping
-file, which will then allow you to use `beta_diversity_through_plots.py`
+file, which will then allow you to use `beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
 in QIIME.
 
-If you had any trouble getting to this point, please email jennietf@gmail.com.
-I am interested in improving documentation, so please let me know if you find
-errors or have suggestions! Thank you!
+If you had any trouble, please email jennietf@gmail.com.
+I am also interested in improving documentation, so please let me know if you
+find errors or have suggestions! Thank you!
 
 Developers:
 ===========
@@ -103,6 +103,10 @@ all of the necessary files. Once you have cloned, you can then find the
 
 Typing the command `ghost-tree` will then display the ghost-tree help page
 that provides command and subcommand help documentation.
+
+You should also really check out this `ipython notebook <http://ipython.org/install.html>`_
+tutorial for a detailed explanation on how to create your own ghost-tree.nwk
+using the command line tool. See the `ghost-tree .ipynb workflow <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_
 
 This project is currently under active development. If you're interested in
 contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
