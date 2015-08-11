@@ -102,11 +102,12 @@ all of the necessary files. Once you have cloned, you can then find the
 Typing the command `ghost-tree` will then display the ghost-tree help page
 that provides command and subcommand help documentation.
 
-You should also really check out our "ipython notebook."  See `ipynb install directions here <http://ipython.org/install.html>`_
-tutorial for a detailed explanation on how to create your own ghost-tree.nwk
-using the command line tool. See our `ghost-tree .ipynb workflow here <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_
+You should also really check out our "ipython notebook."  See `ipynb install directions here <http://ipython.org/install.html>`_.
+For a detailed explanation on how to create your own ghost-tree.nwk
+using the command line tool, see our `ghost-tree .ipynb workflow <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_.
 
-This project is currently under active development. If you're interested in
+This project is currently under active development and may evolve so please
+update your local repository and check here for changes. If you're interested in
 contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
 
 .. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
