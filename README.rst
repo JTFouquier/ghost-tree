@@ -30,6 +30,7 @@ you'd use the corresponding ghost-tree listed below:
  *  For ``sh_refs_qiime_ver6_dynamic_30.12.2014.fasta``, use  `ghosttree_UNITEv6_30.12.2014S_dynamic_80clusters_052515.nwk <https://github.com/JTFouquier/ghost-tree/raw/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_dynamic_80clusters_052515.nwk>`_
 
 Using ghost-tree.nwk files for your analyses:
+=============================================
 
 To use the ghost-tree.nwk files in scripts such as
 beta_diversity_through_plots.py in QIIME, you will need to filter your .biom
@@ -38,21 +39,23 @@ beta_diversity_through_plots.py to fail. Note: We understand that QIIME isn't
 the only downstream use for ghost-tree, but this has been a popular user
 request.
 
-This file `get_otus_from_ghost_tree.py <insertlink>`_ can be downloaded and
-used to create a .txt file containing only the accession numbers from the
-ghost-tree.nwk that you will be using for your diversity analyses.
+This file, `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_,
+can be downloaded and used to create a .txt file containing only the accession
+numbers from the ghost-tree.nwk that you will be using for your diversity
+analyses.
 
-You must have skbio installed to use `get_otus_from_ghost_tree.py`.
-See: http://scikit-bio.org/
+You must have skbio installed to use `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_.
+See `scikit-bio <http://scikit-bio.org/>`_ for install directions. scikit-bio
+is very handy! You'll love it.
 
-You will then use "ghost_tree_tips.txt" output file (containing the accession
+You will then use `ghost_tree_tips.txt` output file (containing the accession
 numbers from the ghost-tree.nwk) to filter your .biom table so that it contains
 only the OTUs that are in the ghost-tree.nwk that you are using.
 
 The script, `filter_otus_from_otu_table.py <http://qiime.org/scripts/filter_otus_from_otu_table.html>`_
 will filter your .biom table.
 
-Use the required arguments in `filter_otus_from_otu_table.py` and also include
+Use the required arguments in `filter_otus_from_otu_table.py <http://qiime.org/scripts/filter_otus_from_otu_table.html>`_ and also include
 the following two arguments:
 -e, --otu_ids_to_exclude_fp
 (provide the text file containing OTU ids to exclude)
@@ -60,10 +63,17 @@ the following two arguments:
 (this will keep OTUs in otu_ids_to_exclude_fp, rather than discard them)
 
 You should then have your filtered .biom table, a ghost-tree.nwk, and a mapping
-file which will then allow you to use `beta_diversity_through_plots.py`
+file, which will then allow you to use `beta_diversity_through_plots.py`
 in QIIME.
 
-**If** you are an experienced developer, or are interested in trying out the
+If you had any trouble getting to this point, please email jennietf@gmail.com.
+I am interested in improving documentation, so please let me know if you find
+errors or have suggestions! Thank you!
+
+Developers:
+===========
+
+**If you are an experienced developer,** or are interested in trying out the
 ghost-tree tool via command line, then you will need to follow these
 directions:
 
