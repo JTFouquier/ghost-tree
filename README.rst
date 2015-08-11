@@ -9,9 +9,18 @@ diversity analyses. One database is used as a backbone or scaffold because it
 provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
-For application to ITS, you don't need to install ghost-tree, but can use our pre-built trees. The ``trees`` directory contains pre-built reference phylogenetic trees for the `UNITE QIIME reference files available here <https://unite.ut.ee/repository.php>`_.
+For application to ITS, you don't need to install ghost-tree, but can use our
+pre-built trees. The tree that you download needs to match the UNITE database
+that you used (or plan to use) for your ITS analyses. The ``trees`` directory
+contains pre-built reference phylogenetic trees for the `UNITE QIIME reference
+files available here
+<https://unite.ut.ee/repository.php>`_.
 
-The most recent ghost-trees we've created are for the `sh_qiime_release_s_30.12.2014 release of UNITE, available here <https://unite.ut.ee/sh_files/sh_qiime_release_s_30.12.2014.zip>`_. Depending on which of the fasta files you're using from that directory, you'd use the corresponding ghost-tree listed below:
+The most recent ghost-trees we've created are for the
+`sh_qiime_release_s_30.12.2014 release of UNITE, available here
+<https://unite.ut.ee/sh_files/sh_qiime_release_s_30.12.2014.zip>`_.
+Depending on which of the fasta files you're using from that directory,
+you'd use the corresponding ghost-tree listed below:
 
  * For ``sh_refs_qiime_ver6_97_30.12.2014.fasta``, use `ghosttree_UNITEv6_30.12.2014S_97_100clusters_052515.nwk <https://raw.githubusercontent.com/JTFouquier/ghost-tree/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_97_100clusters_052515.nwk>`_
  *  For ``sh_refs_qiime_ver6_97_30.12.2014.fasta``, use  `ghosttree_UNITEv6_30.12.2014S_97_80clusters_052515.nwk <https://github.com/JTFouquier/ghost-tree/raw/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_97_80clusters_052515.nwk>`_
@@ -22,6 +31,9 @@ The most recent ghost-trees we've created are for the `sh_qiime_release_s_30.12.
 
 
 
+If you are an experienced developer, or are interested in trying out the
+ghost-tree tool via command line, then you will need to follow these
+directions:
 
 ghost-tree requires two external software tools to build a hybrid-tree or
 the "ghost-tree":
@@ -36,10 +48,10 @@ To optionally (recommended) regroup the extension OTUs, ghost-tree requires
 SUMACLUST:
 
 SUMACLUST (Version 1.0.01):
-http://metabarcoding.org/sumatra/wiki/download
+https://git.metabarcoding.org/obitools/sumaclust/wikis/home/
 
 Please install the software and make sure that it is in your PATH variable.
-To test this you should be able to type “muscle, fasttree or sumaclust” from
+To test this you need to be able to type “muscle, fasttree or sumaclust” from
 command line and see the “usage” or “help” documentation for each
 software tool.
 
