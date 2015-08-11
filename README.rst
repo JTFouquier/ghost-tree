@@ -40,11 +40,9 @@ Note: We understand that QIIME isn't the only downstream use for ghost-tree,
 but this has been a popular user request.
 
 This file, `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_,
-can be downloaded and used to create a .txt file containing only the accession
-numbers from the ghost-tree.nwk that you will be using for your diversity
-analyses.
-
-You must have skbio installed to use `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_.
+can be downloaded and used to create ``ghost_tree_tips.txt`` output file
+containing only the accession numbers from the ghost-tree.nwk that you will
+be using for your diversity analyses. You must have skbio installed to use `get_otus_from_ghost_tree.py <https://github.com/JTFouquier/ghost-tree/blob/master/helper_files/get_otus_from_ghost_tree.py>`_.
 See `scikit-bio <http://scikit-bio.org/>`_ for install directions. scikit-bio
 is very handy! You'll love it.
 
@@ -73,7 +71,7 @@ find errors or have suggestions! Thank you!
 Developers:
 ===========
 
-**If you are an experienced developer,** or are interested in trying out the
+If you are an experienced developer, or are interested in trying out the
 ghost-tree tool via command line, then you will need to follow these
 directions:
 
@@ -104,9 +102,9 @@ all of the necessary files. Once you have cloned, you can then find the
 Typing the command `ghost-tree` will then display the ghost-tree help page
 that provides command and subcommand help documentation.
 
-You should also really check out this `ipython notebook <http://ipython.org/install.html>`_
+You should also really check out our "ipython notebook."  See `ipynb install directions here <http://ipython.org/install.html>`_
 tutorial for a detailed explanation on how to create your own ghost-tree.nwk
-using the command line tool. See the `ghost-tree .ipynb workflow <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_
+using the command line tool. See our `ghost-tree .ipynb workflow here <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_
 
 This project is currently under active development. If you're interested in
 contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
