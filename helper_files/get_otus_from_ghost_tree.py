@@ -19,7 +19,7 @@ Use the required arguments and the following two optional arguments:
 """
 from skbio import TreeNode
 
-ghosttree = TreeNode.read("ghost_tree.nwk") # insert your ghost-tree name here
+ghosttree = TreeNode.read("ghost_tree.nwk")  # insert your ghost-tree name here
 output = open("ghost_tree_tips.txt", "w")
 
 for node in ghosttree.tips():
