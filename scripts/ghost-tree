@@ -10,13 +10,14 @@
 
 import click
 import skbio
+import os
 
 # library code imports
 from ghosttree.util import compare_tip_to_tip_distances
 from ghosttree.filter import filter_positions
 from ghosttree.extensions.cluster import preprocess_extension_tree_sequences
 from ghosttree.silva.filter import fungi_from_fasta
-from ghosttree.scaffold.hybridtree import scaffold_extensions_into_foundation
+from ghosttree.scaffold.hybridtree import extensions_onto_foundation
 
 
 @click.group()
@@ -31,15 +32,17 @@ def cli():
     For dependent software installation instructions please see:
     https://github.com/JTFouquier/ghost-tree/blob/master/README.rst
 
-    -> For more detailed help with each command, enter --help
+    -> For help with each command, enter "--help"
     (e.g. 'ghost-tree scaffold hybrid-tree --help').
 
+    -> For a more detailed tutorial, please see:
+    https://github.com/JTFouquier/ghost-tree/tree/master/workflow
+
     -> There are three 'command groups' (silva, extensions, and scaffold),
-    which include additional subcommands. (e.g. enter 'ghost-tree silva' and
-    you will see the command 'ghost-tree silva extract-fungi')
+    which include additional 'subcommands.' (e.g. enter 'ghost-tree silva' and
+    you will see the command 'ghost-tree silva extract-fungi' listed)
 
-    -> Arguments must be entered in order, without "-"/dashes.
-
+    -> Arguments *must* be entered in order, without any "-"/dashes.
     ___________________________________________________________________
     """
     pass
@@ -171,23 +174,29 @@ def scaffold():
 @click.argument("extension-trees-taxonomy-file", type=click.File("U"))
 @click.argument("extension-trees-sequence-file", type=click.File("U"))
 @click.argument("foundation-alignment-file", type=click.File("U"))
-@click.argument("ghost-tree-output-file", type=click.File("w"))
-def hybrid_tree(extension_trees_otu_map, extension_trees_taxonomy_file,
+@click.argument("ghost-tree-output-folder", type=click.STRING)
+@click.option("--stderr", is_flag=True, help="'saves error log file")
+@click.option("--foundation_alignment", is_flag=True, help="saves non-redundant foundation alignment file")
+@click.option("--foundation_tree", is_flag=True, help="saves foundation phylogenetic tree file")
+@click.option("--exclude_id_list", is_flag=True, help="will not save accession id file")
+def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
+                extension_trees_otu_map, extension_trees_taxonomy_file,
                 extension_trees_sequence_file, foundation_alignment_file,
-                ghost_tree_output_file):
-    """Combines two genetic databases into
-    one phylogenetic tree and is the final command in ghost-tree.
+                ghost_tree_output_folder):
+    """Combines two genetic databases into one phylogenetic tree and is the
+    final command in ghost-tree.
 
     Some genetic databases provide finer taxonomic resolution, but high
     sequence variability causes poor multiple sequence alignments
-    (these are the "extension trees").
+    (we consider these "extension trees").
 
-    Other databases provide high quality phylogenetic information (hence it
-    is used as the "foundation"), but poor taxonomic resolution.
+    Other databases provide high quality phylogenetic information (hence they
+    can be used as the "foundation" tree), but they provide poor quality
+    taxonomic resolution.
 
     The output file is one phylogenetic tree in .nwk format, which has the
-    benefits of both databases, but allowing sequencing to be performed using
-    only one primer set, the"extension trees" primer set.
+    benefits of both databases, but allows sequencing to be performed using
+    only one primer set, the "extension trees" primer set.
 
     Arguments:
 
@@ -220,16 +229,39 @@ def hybrid_tree(extension_trees_otu_map, extension_trees_taxonomy_file,
     in .fasta format. This file refers to the "foundation" of the
     ghost-tree. Contains accession numbers and taxonomy labels.
 
-    5) ghost-tree-output-file:
-    The Newick formatted ghost-tree is the final output of the ghost-tree
-    tool. This is a phylogenetic tree designed for downstream diversity
-    analyses."""
-    scaffold_extensions_into_foundation(extension_trees_otu_map,
-                                        extension_trees_taxonomy_file,
-                                        extension_trees_sequence_file,
-                                        foundation_alignment_file,
-                                        ghost_tree_output_file)
+    5) ghost-tree-output-folder:
+        Output folder contains files including:
+        a) The Newick formatted ghost-tree, which is the final output of the
+           ghost-tree tool. This is a phylogenetic tree designed for
+           downstream diversity analyses.
+        b) Accession IDs from the ghost-tree.nwk file that you can use for
+           downstream analyses tools
+        c) log error file (this is an optional file that you can have if you
+           type '--stderr')
+    """
+    print "\n\nghost-tree is running now...\n\n"
+    _, std_error = extensions_onto_foundation(extension_trees_otu_map, extension_trees_taxonomy_file,
+                                              extension_trees_sequence_file, foundation_alignment_file,
+                                              ghost_tree_output_folder)
 
+    if stderr:
+        logfile = open(ghost_tree_output_folder + "/ghost_tree_log.txt", "w")
+        logfile.write(std_error)
+        logfile.close()
+
+    if foundation_alignment:
+        pass
+    else:
+        os.unlink(ghost_tree_output_folder + "/nr_foundation_alignment_gt.fasta")
+
+    if foundation_tree:
+        pass
+    else:
+        os.unlink(ghost_tree_output_folder + "/nr_foundation_tree_gt.nwk")
+
+    if exclude_id_list:
+        os.unlink(ghost_tree_output_folder + "/ghost_tree_extension_accession_ids.txt")
+    print "\n...ghost-tree is complete.\n\n"
 
 if __name__ == "__main__":
     cli()

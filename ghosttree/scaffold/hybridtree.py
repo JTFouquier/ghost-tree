@@ -17,10 +17,10 @@ from skbio.alignment import SequenceCollection
 from skbio import read
 
 
-def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
-                                        extension_seq_fh,
-                                        foundation_alignment_fh,
-                                        ghost_tree_fp):
+def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
+                               extension_seq_fh,
+                               foundation_alignment_fh,
+                               ghost_tree_fp):
     """Combines two genetic databases into one phylogenetic tree.
 
     Some genetic databases provide finer taxonomic resolution,
@@ -64,39 +64,43 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
         in .fasta format. This file refers to the "foundation" of the
         ghost-tree. Contains accession numbers and taxonomy labels.
 
-    ghost_tree_fh : filehandle
-        The Newick formatted ghost-tree is the final output of the ghost-tree
-        tool. This is a phylogenetic tree designed for downstream diversity
-        analyses.
-
+    ghost_tree_fp : folder
+        Output folder contains files including:
+        a) The Newick formatted ghost-tree, which is the final output of the
+           ghost-tree tool. This is a phylogenetic tree designed for
+           downstream diversity analyses.
+        b) Accession IDs from the ghost-tree.nwk file that you can use for
+           downstream analyses tools
+        c) log error file (this is an optional file that you can have if you
+           type '--stderr')
     """
     global foundation_accession_genus_dic  # needs global assignment for flake8
     foundation_accession_genus_dic = {}
-    ghost_tree_output = str(ghost_tree_fp)
-    ghost_tree_output = ghost_tree_output[16:-4]
+    std_output, std_error = "", ""
     process = subprocess.Popen("muscle", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
-    output, error = process.communicate()
-    if re.search("command not found", error):
+    std_output, std_error = process.communicate()
+    if re.search("command not found", std_error):
         print "muscle, multiple sequence aligner, is not found. Is it" \
               " installed? Is it in your path?"
     process = subprocess.Popen("fasttree", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
-    output, error = process.communicate()
-    if re.search("command not found", error):
+    std_output, std_error = process.communicate()
+    std_output, std_error = "", ""
+    if re.search("command not found", std_error):
         print "fasttree, phylogenetic tree builder, is not found. Is it" \
               " installed? Is it in your path?"
     os.mkdir("tmp")
-    logfile = open("ghost-tree_log_"+ghost_tree_output+".txt", "w")
+    os.mkdir(ghost_tree_fp)
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dic(otu_file_fh,
                                        extension_taxonomy_fh)
     skbio.write(_make_nr_foundation_alignment(foundation_alignment_fh,
                 extension_genus_accession_list_dic),
-                into="nr_foundation_alignment_gt.fasta",
+                into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                 format="fasta")
-    foundation_tree = _make_foundation_tree("nr_foundation_alignment_gt.fasta",
-                                            logfile)
+    foundation_tree, all_std_error = _make_foundation_tree(ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
+                                                           std_error, ghost_tree_fp)
     seqs = SequenceCollection.read(extension_seq_fh)
     for node in foundation_tree.tips():
         key_node, _ = str(node).split(":")
@@ -110,24 +114,33 @@ def scaffold_extensions_into_foundation(otu_file_fh, extension_taxonomy_fh,
                                        " -maxiters 2 -diags1", shell=True,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            output, error = process.communicate()
+            std_output, std_error = process.communicate()
             process = subprocess.Popen("fasttree -nt -quiet" +
                                        " tmp/mini_alignment_gt.fasta >" +
                                        " tmp/mini_tree_gt.nwk", shell=True,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            output, error = process.communicate()
-            logfile.write("FastTree warnings for genus "+key_node+" are:\n" +
-                          error + "\n")
+            std_output, std_error = process.communicate()
+            all_std_error += "FastTree warnings for genus "+key_node+" are:\n" + std_error + "\n"
             mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
                              into=TreeNode)
             node.extend(mini_tree.root_at_midpoint().children[:])
         except:
             continue
     shutil.rmtree("tmp")
-    ghost_tree_fp.write(str(foundation_tree))
-    logfile.close()
-    return str(foundation_tree).strip()
+    ghost_tree_nwk = open(ghost_tree_fp + "/ghost_tree.nwk", "w")
+    ghost_tree_nwk.write(str(foundation_tree))
+    ghost_tree_nwk.close()
+    _make_accession_id_file(ghost_tree_fp)
+    return str(foundation_tree).strip(), all_std_error
+
+
+def _make_accession_id_file(ghost_tree_fp):
+    ghosttree = TreeNode.read(ghost_tree_fp + "/ghost_tree.nwk")
+    output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt", "w")
+    for node in ghosttree.tips():
+        output.write(str(node.name)+"\n")
+    output.close()
 
 
 def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
@@ -209,12 +222,14 @@ def _make_nr_foundation_alignment(foundation_alignment_fh,
             pass
 
 
-def _make_foundation_tree(in_name, logfile):
+def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
     process = subprocess.Popen("fasttree -nt -quiet "+in_name+"" +
-                               " > nr_foundation_tree_gt.nwk", shell=True,
+                               " > "+ghost_tree_fp+"/nr_foundation_tree_gt.nwk", shell=True,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
-    output, error = process.communicate()
-    logfile.write("foundation_tree FastTree warnings are:\n"+error)
-    foundation_tree = TreeNode.read("nr_foundation_tree_gt.nwk")
-    return foundation_tree
+    std_output, std_error = process.communicate()
+    all_std_error += "Error log for ghost-tree:\n\n\nSome genera may not contain " + \
+                     "any errors, so the genus is listed as a placeholder\n\n"
+    all_std_error += "FastTree warnings for the foundation_tree are:\n" + std_error + "\n"
+    foundation_tree = TreeNode.read(ghost_tree_fp + "/nr_foundation_tree_gt.nwk")
+    return foundation_tree, all_std_error
