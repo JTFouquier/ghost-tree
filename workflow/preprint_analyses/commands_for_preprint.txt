@@ -1,0 +1,27 @@
+
+Commands for PeerJ pre-print analyses:
+
+Please note, these are the same exact commands I used, but file names may have been renamed slightly for clarity. The files themselves are the exact files used.  
+
+filter_otus_from_otu_table.py --negate_ids_to_exclude -e ghost_tree_tips.txt -i otu_table_even100.biom -o otu_table_even100_filtered.biom
+
+simsam.py -i otu_table_even100_filtered.biom -t ghost_tree_97_80clusters.nwk -d 0.6 -n 10 -o simsam_d0.6n10 -m mappingfileSALIVAENV2.txt
+
+beta_diversity_through_plots.py -o beta_div_ghost_tree2 -t ghost_tree_97_80clusters.nwk -m mappingfileSALIVAENV2_n10_d0.6.txt -i otu_table_even100_filtered_n10_d0.6.biom
+
+MUSCLE alignment from Arron was run on FastTree to produce .nwk
+beta_diversity_through_plots.py -o beta_div_muscle_alignment -t muscle_tree_arron.nwk -m mappingfileSALIVAENV2_n10_d0.6.txt -i otu_table_even100_filtered_n10_d0.6.biom
+
+beta_diversity.py -i otu_table_even100_filtered_n10_d0.6.biom -m binary_jaccard -o beta_div_binary_jaccard
+
+principal_coordinates.py -i binary_jaccard_otu_table_even100_filtered_n10_d0.6.txt -o binary_jaccard_otu_table_even100_filtered_n10_d0.6_dm.txt
+
+make_emperor.py -i binary_jaccard_otu_table_even100_filtered_n10_d0.6_dm.txt -o beta_div_plots_binary_jaccard -m mappingfileSALIVAENV2_n10_d0.6.txt
+
+Bray-Curtis (was not used in paper, but commands are as follows):
+
+beta_diversity.py -i otu_table_even100_filtered_n10_d0.6.biom -m bray_curtis -o beta_div_bray_curtis
+
+principal_coordinates.py -i bray_curtis_otu_table_even100_filtered_n10_d0.6.txt -o bray_curtis_coordinates.txt
+
+make_emperor.py -i bray_curtis_coordinates.txt -m mappingfileSALIVAENV2_n10_d0.6.txt -o bray_pcoa
