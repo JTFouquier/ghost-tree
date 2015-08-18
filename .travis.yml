@@ -18,6 +18,6 @@ install:
   - pip install .
 script:
   - nosetests ghosttree --with-coverage
-  - flake8 ghosttree setup.py scripts
+  - flake8 ghosttree setup.py scripts/*
 after_success:
   - coveralls
