@@ -232,4 +232,5 @@ def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
                      "any errors, so the genus is listed as a placeholder\n\n"
     all_std_error += "FastTree warnings for the foundation_tree are:\n" + std_error + "\n"
     foundation_tree = TreeNode.read(ghost_tree_fp + "/nr_foundation_tree_gt.nwk")
+    foundation_tree.root_at_midpoint()
     return foundation_tree, all_std_error
