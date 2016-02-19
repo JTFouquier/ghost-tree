@@ -83,10 +83,10 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     if re.search("command not found", std_error):
         print "muscle, multiple sequence aligner, is not found. Is it" \
               " installed? Is it in your path?"
+    std_output, std_error = "", ""
     process = subprocess.Popen("fasttree", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
-    std_output, std_error = "", ""
     if re.search("command not found", std_error):
         print "fasttree, phylogenetic tree builder, is not found. Is it" \
               " installed? Is it in your path?"
