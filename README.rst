@@ -5,7 +5,7 @@ ghost-tree
 
 ghost-tree is a bioinformatics tool that combines sequence data from two
 genetic marker databases into one phylogenetic tree that can be used for
-diversity analyses. One database is used as a backbone or scaffold because it
+diversity analyses. One database is used as a "foundation tree" because it
 provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
@@ -16,18 +16,7 @@ contains pre-built reference phylogenetic trees for the `UNITE QIIME reference
 files available here
 <https://unite.ut.ee/repository.php>`_.
 
-The most recent ghost-trees we've created are for the
-`sh_qiime_release_s_30.12.2014 release of UNITE, available here
-<https://unite.ut.ee/sh_files/sh_qiime_release_s_30.12.2014.zip>`_.
-Depending on which of the fasta files you're using from that directory,
-you'd use the corresponding ghost-tree listed below:
-
- * For ``sh_refs_qiime_ver6_97_30.12.2014.fasta``, use `ghosttree_UNITEv6_30.12.2014S_97_100clusters_052515.nwk <https://raw.githubusercontent.com/JTFouquier/ghost-tree/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_97_100clusters_052515.nwk>`_
- *  For ``sh_refs_qiime_ver6_97_30.12.2014.fasta``, use  `ghosttree_UNITEv6_30.12.2014S_97_80clusters_052515.nwk <https://github.com/JTFouquier/ghost-tree/raw/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_97_80clusters_052515.nwk>`_
- * For ``sh_refs_qiime_ver6_99_30.12.2014.fasta``, use `ghosttree_UNITEv6_30.12.2014S_99_100clusters_052515.nwk <https://raw.githubusercontent.com/JTFouquier/ghost-tree/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_99_100clusters_052515.nwk>`_
- *  For ``sh_refs_qiime_ver6_99_30.12.2014.fasta``, use  `ghosttree_UNITEv6_30.12.2014S_99_80clusters_052515.nwk <https://github.com/JTFouquier/ghost-tree/raw/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_99_80clusters_052515.nwk>`_
- * For ``sh_refs_qiime_ver6_dynamic_30.12.2014.fasta``, use `ghosttree_UNITEv6_30.12.2014S_dynamic_100clusters_052515.nwk <https://raw.githubusercontent.com/JTFouquier/ghost-tree/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_dynamic_100clusters_052515.nwk>`_
- *  For ``sh_refs_qiime_ver6_dynamic_30.12.2014.fasta``, use  `ghosttree_UNITEv6_30.12.2014S_dynamic_80clusters_052515.nwk <https://github.com/JTFouquier/ghost-tree/raw/master/trees/ghost-trees_052515/ghosttree_UNITEv6_30.12.2014S_dynamic_80clusters_052515.nwk>`_
+The most recent ghost-trees we've created are in our tree repository.
 
 Using ghost-tree.nwk files for your analyses:
 =============================================
