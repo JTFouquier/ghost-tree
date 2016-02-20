@@ -9,7 +9,7 @@ diversity analyses. One database is used as a "foundation tree" because it
 provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
-For application to ITS, you don't need to install ghost-tree, but can use our
+For application to ITS, you don't need to install ghost-tree but can use our
 pre-built trees. The tree that you download needs to match the UNITE database
 that you used (or plan to use) for your ITS analyses. The ``trees`` directory
 contains pre-built reference phylogenetic trees for the `UNITE QIIME reference
@@ -42,8 +42,7 @@ only the OTUs that are in the ghost-tree.nwk that you are using.
 The script, `filter_otus_from_otu_table.py <http://qiime.org/scripts/filter_otus_from_otu_table.html>`_
 will filter your .biom table.
 
-Use the required arguments in `filter_otus_from_otu_table.py <http://qiime.org/scripts/filter_otus_from_otu_table.html>`_ and also include
-the following two arguments:
+Use the required arguments in `filter_otus_from_otu_table.py <http://qiime.org/scripts/filter_otus_from_otu_table.html>`_ and also include the following two arguments:
 -e, --otu_ids_to_exclude_fp
 (provide the text file containing OTU ids to exclude)
 --negate_ids_to_exclude
@@ -60,9 +59,9 @@ find errors or have suggestions! Thank you!
 Developers:
 ===========
 
-If you are an experienced developer, or are interested in trying out the
-ghost-tree tool via command line, then you will need to follow these
-directions:
+If you are an experienced developer or are interested in trying out the
+ghost-tree tool via command line, then you will need to follow the following
+directions.
 
 ghost-tree requires two external software tools to build a hybrid-tree or
 the "ghost-tree":
@@ -73,30 +72,30 @@ http://www.drive5.com/muscle/downloads.htm
 FastTree (Version >2.1.7):
 http://www.microbesonline.org/fasttree/#Install
 
-To optionally (recommended) regroup the extension OTUs, ghost-tree requires
+To optionally regroup the extension OTUs (recommended), ghost-tree requires
 SUMACLUST:
 
 SUMACLUST (Version 1.0.01):
 https://git.metabarcoding.org/obitools/sumaclust/wikis/home/
 
 Please install the software and make sure that it is in your PATH variable.
-To test this you need to be able to type “muscle, fasttree or sumaclust” from
-command line and see the “usage” or “help” documentation for each
+To test this you need to be able to type “muscle", "fasttree" or "sumaclust” in the
+command line and see the corresponding “usage” or “help” documentation for each
 software tool.
 
-You will then need to "clone" the ghost-tree repository in order to download
-all of the necessary files. Once you have cloned, you can then find the
-`setup.py` and pip install it via "pip install -e ."
+You will then need to "clone" the ghost-tree repository to download
+all of the necessary files. You can then find the `setup.py` and install it via
+"pip install -e ."
 
 Typing the command `ghost-tree` will then display the ghost-tree help page
 that provides command and subcommand help documentation.
 
-You should also really check out our "ipython notebook."  See `ipynb install directions here <http://ipython.org/install.html>`_.
-For a detailed explanation on how to create your own ghost-tree.nwk
+You should also check out our "ipython notebook".  See the `ipynb install directions here <http://ipython.org/install.html>`_.
+For a detailed explanation of how to create your own ghost-tree.nwk
 using the command line tool, see our `ghost-tree .ipynb workflow <https://github.com/JTFouquier/ghost-tree/blob/master/workflow/ghost-tree_workflow.ipynb>`_.
 
-This project is currently under active development and may evolve so please
-update your local repository and check here for changes. If you're interested in
+This project is currently under active development and may evolve without notice. So, please
+update your local repository, and check here for changes. If you're interested in
 contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
 
 .. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
