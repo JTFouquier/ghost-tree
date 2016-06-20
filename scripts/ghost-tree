@@ -239,7 +239,7 @@ def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
         c) log error file (this is an optional file that you can have if you
            type '--stderr')
     """
-    print "\n\nghost-tree is running now...\n\n"
+    print("\n\nghost-tree is running now...\n\n")
     _, std_error = extensions_onto_foundation(extension_trees_otu_map, extension_trees_taxonomy_file,
                                               extension_trees_sequence_file, foundation_alignment_file,
                                               ghost_tree_output_folder)
@@ -261,7 +261,7 @@ def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
 
     if exclude_id_list:
         os.unlink(ghost_tree_output_folder + "/ghost_tree_extension_accession_ids.txt")
-    print "\n...ghost-tree is complete.\n\n"
+    print("\n...ghost-tree is complete.\n\n")
 
 if __name__ == "__main__":
     cli()
