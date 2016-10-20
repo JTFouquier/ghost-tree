@@ -6,6 +6,7 @@
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
 import skbio
+# (TODO) should I import the entire module or sections? We did both previously
 
 
 def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
@@ -39,7 +40,7 @@ def fungi_from_fasta(fasta_fh, accession_fh, taxonomy_fh):
     accession_map = _parse_accession_map(accession_fh)
     taxonomy_map = _parse_taxonomy_map(taxonomy_fh)
     for seq in skbio.read(fasta_fh, format="fasta"):
-        map_num = accession_map[seq.id]
+        map_num = accession_map[seq.metadata['id']]
         if map_num in taxonomy_map:
             yield seq
 

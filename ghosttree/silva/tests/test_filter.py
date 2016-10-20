@@ -6,9 +6,9 @@
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
-from skbio import BiologicalSequence
+from skbio import Sequence
 
 from ghosttree.silva.filter import fungi_from_fasta
 
@@ -35,17 +35,16 @@ class TestFungiFromFasta(unittest.TestCase):
                                   self.accession,
                                   self.taxonomy_with_fungi)
         self.assertEqual(list(result),
-                         [BiologicalSequence("ATCG", id="AB21",
-                                             description="Fungi")])
+                         [Sequence("ATCG", metadata={'id': "AB21", 'description': "Fungi"})])
 
     def test_fasta_with_many_fungi(self):
         result = fungi_from_fasta(self.fasta_many_fungi,
                                   self.accession,
                                   self.taxonomy_with_fungi)
         self.assertEqual(list(result), [
-            BiologicalSequence("GGGG", id="AB123", description="Fungi"),
-            BiologicalSequence("CCCC", id="AB125", description="Fungi"),
-            BiologicalSequence("AAAA", id="AB126", description="Fungi"),
+            Sequence("GGGG", metadata={'id': "AB123", 'description': "Fungi"}),
+            Sequence("CCCC", metadata={'id': "AB125", 'description': "Fungi"}),
+            Sequence("AAAA", metadata={'id': "AB126", 'description': "Fungi"}),
         ])
 
     def test_duplicate_accession_numbers(self):

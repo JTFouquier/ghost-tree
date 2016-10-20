@@ -12,9 +12,10 @@ import subprocess
 
 import skbio
 
-from skbio import TreeNode
-from skbio.alignment import SequenceCollection
-from skbio import read
+# (TODO) removing these makes 17 unit tests appear... adding them goes to 11
+# from skbio import TreeNode
+# from skbio.alignment import SequenceCollection
+# from skbio import read
 
 
 def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
@@ -93,8 +94,8 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dic(otu_file_fh,
                                        extension_taxonomy_fh)
-    skbio.write(_make_nr_foundation_alignment(foundation_alignment_fh,
-                extension_genus_accession_list_dic),
+    output22 = _make_nr_foundation_alignment(foundation_alignment_fh, extension_genus_accession_list_dic)
+    skbio.io.write(output22,
                 into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                 format="fasta")
     foundation_tree, all_std_error = _make_foundation_tree(ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
@@ -145,8 +146,8 @@ def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
     keep = extension_genus_accession_list_dic[key_node]
     output_file = open("tmp/mini_seq_gt.fasta", "w")
     for seq in seqs:
-        if seq.id in keep:
-            fasta_format = ">"+seq.id+"\n"+str(seq)+"\n"
+        if seq.metadata['id'] in keep:
+            fasta_format = ">"+seq.metadata['id']+"\n"+str(seq)+"\n"
             output_file.write(fasta_format)
     output_file.close()
     return fasta_format
@@ -204,20 +205,31 @@ def _create_taxonomy_dic(extension_taxonomy_fh):
 
 def _make_nr_foundation_alignment(foundation_alignment_fh,
                                   extension_genus_accession_list_dic):
-    all_genus_list = extension_genus_accession_list_dic.keys()
+    all_genus_list = list(extension_genus_accession_list_dic.keys())
+    print (all_genus_list)
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
+    # print(all_genus_list)
     for seq in skbio.read(foundation_alignment_fh, format="fasta"):
-        try:
-            for i in all_genus_list:
-                if_case = (re.search(";" + i + ";", seq.description) or
-                           re.search("g__" + i + ";", seq.description))
-                if if_case:
-                    all_genus_list.remove(i)
-                    foundation_accession_genus_dic[seq.id] = i
-                    yield seq
-        except:
-            pass
+        # print('desc', seq.metadata['description'])
+        # print('id', seq.metadata['id'])
+
+        for i in all_genus_list:
+            print('i', i)
+            print('type i', type(i))
+            print('desc', seq.metadata['description'])
+            print('id', seq.metadata['id'])
+
+            if_case = (re.search(";" + i + ";", seq.metadata['description']) or
+                       re.search("g__" + i + ";", seq.metadata['description']))
+            print('ifcase: ', if_case)
+
+            if if_case:
+                print('true!!')
+                all_genus_list.remove(i)
+                foundation_accession_genus_dic[seq.metadata['id']] = i
+                print('foundation_accession_genus_dic', foundation_accession_genus_dic)
+                yield seq
 
 
 def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):

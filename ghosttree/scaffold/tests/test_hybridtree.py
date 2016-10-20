@@ -7,10 +7,10 @@
 # ----------------------------------------------------------------------------
 import unittest
 import os
-from StringIO import StringIO
+from io import StringIO
 
-from skbio import BiologicalSequence
-from skbio import SequenceCollection
+import skbio
+from skbio import Sequence
 
 from ghosttree.scaffold.hybridtree import _make_nr_foundation_alignment
 from ghosttree.scaffold.hybridtree import _create_taxonomy_dic
@@ -34,9 +34,11 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
     def test_make_nr_foundation_alignment_few(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
                                                self.extension_genus_dic_few)
+        print('list results', list(result))
+
         self.assertEqual(list(result), [
-            BiologicalSequence("AAA---", id="PBB1", description="Phoma"),
-            BiologicalSequence("AAG---", id="CBB1", description="Candida"),
+            Sequence("AAA---", metadata={"id": "PBB1", "description": "Phoma"}),
+            Sequence("AAG---", metadata={"id": "CBB1", "description": "Candida"}),
         ])
 
     def test_make_nr_foundation_alignment_none(self):
@@ -65,7 +67,7 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
 
     def test_make_mini_otu_files(self):
         os.system("mkdir tmp")
-        self.extension_seqs = SequenceCollection.read(self.extension_seqs)
+        self.extension_seqs = skbio.read(self.extension_seqs, 'fasta')
         result = _make_mini_otu_files(self.key_node,
                                       self.extension_genus_dic_few,
                                       self.extension_seqs)

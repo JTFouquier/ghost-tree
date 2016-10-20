@@ -11,7 +11,9 @@ import skbio
 def filter_positions(alignment_fh, maximum_gap_frequency,
                      maximum_position_entropy):
     """Filter gaps and high entropy positions from an alignment."""
-    aln = skbio.Alignment.read(alignment_fh)
+    # (TODO)
+    aln = skbio.alignment.TabularMSA(alignment_fh, 'phylip')
+
     aln = _filter_gap_positions(aln, maximum_gap_frequency)
     aln = _filter_high_entropy_positions(aln, maximum_position_entropy)
     return aln

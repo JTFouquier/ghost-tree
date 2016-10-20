@@ -6,7 +6,7 @@
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
 import numpy as np
 

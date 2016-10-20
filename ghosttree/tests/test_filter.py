@@ -6,11 +6,9 @@
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
 import unittest
-from StringIO import StringIO
+from io import StringIO
 
-from skbio.sequence import BiologicalSequence
-
-from skbio import Alignment
+from skbio import Sequence
 
 from ghosttree.filter import filter_positions
 
@@ -29,30 +27,35 @@ class TestFilterPositions(unittest.TestCase):
         result = filter_positions(self.alignment_with_gaps,
                                   self.maximum_gap_frequency_50,
                                   self.maximum_position_entropy_100)
-        aln = Alignment([BiologicalSequence('AC', id="seq1"),
-                         BiologicalSequence('AC', id="seq2"),
-                         BiologicalSequence('AT', id="seq3"),
-                         BiologicalSequence('AT', id="seq4")])
+
+        aln = [Sequence("ACC--G-GGTA..", metadata={'id': "seq1"}),
+               Sequence("TCC--G-GGCA..", metadata={'id': "seq2"})]
+        msa = TabularMSA(aln, minter='id')
+        print(msa)
+
+
+
+
         self.assertEqual(result, aln)
 
     def test_filter_gap_low_entropy_med(self):
         result = filter_positions(self.alignment_with_gaps,
                                   self.maximum_gap_frequency_0,
                                   self.maximum_position_entropy_50)
-        aln = Alignment([BiologicalSequence('A', id="seq1"),
-                         BiologicalSequence('A', id="seq2"),
-                         BiologicalSequence('A', id="seq3"),
-                         BiologicalSequence('A', id="seq4")])
+        aln = Alignment([Sequence('A', id="seq1"),
+                         Sequence('A', id="seq2"),
+                         Sequence('A', id="seq3"),
+                         Sequence('A', id="seq4")])
         self.assertEqual(result, aln)
 
     def test_filter_gap_high_entropy_low(self):
         result = filter_positions(self.alignment_with_gaps,
                                   self.maximum_gap_frequency_100,
                                   self.maximum_position_entropy_10)
-        aln = Alignment([BiologicalSequence('A-', id="seq1"),
-                         BiologicalSequence('A-', id="seq2"),
-                         BiologicalSequence('A-', id="seq3"),
-                         BiologicalSequence('A-', id="seq4")])
+        aln = Alignment([Sequence('A-', id="seq1"),
+                         Sequence('A-', id="seq2"),
+                         Sequence('A-', id="seq3"),
+                         Sequence('A-', id="seq4")])
         self.assertEqual(result, aln)
 
 
