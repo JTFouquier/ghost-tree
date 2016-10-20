@@ -94,10 +94,11 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dic(otu_file_fh,
                                        extension_taxonomy_fh)
-    output22 = _make_nr_foundation_alignment(foundation_alignment_fh, extension_genus_accession_list_dic)
-    skbio.io.write(output22,
-                into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
-                format="fasta")
+    to_write = _make_nr_foundation_alignment(foundation_alignment_fh,
+                                             extension_genus_accession_list_dic)
+    skbio.io.write(to_write,
+                   into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
+                   format="fasta")
     foundation_tree, all_std_error = _make_foundation_tree(ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                                                            std_error, ghost_tree_fp)
     seqs = SequenceCollection.read(extension_seq_fh)
@@ -206,35 +207,27 @@ def _create_taxonomy_dic(extension_taxonomy_fh):
 def _make_nr_foundation_alignment(foundation_alignment_fh,
                                   extension_genus_accession_list_dic):
     all_genus_list = list(extension_genus_accession_list_dic.keys())
-    print (all_genus_list)
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
-    # print(all_genus_list)
     for seq in skbio.read(foundation_alignment_fh, format="fasta"):
-        # print('desc', seq.metadata['description'])
-        # print('id', seq.metadata['id'])
 
         for i in all_genus_list:
-            print('i', i)
-            print('type i', type(i))
-            print('desc', seq.metadata['description'])
-            print('id', seq.metadata['id'])
 
             if_case = (re.search(";" + i + ";", seq.metadata['description']) or
                        re.search("g__" + i + ";", seq.metadata['description']))
-            print('ifcase: ', if_case)
 
             if if_case:
-                print('true!!')
                 all_genus_list.remove(i)
                 foundation_accession_genus_dic[seq.metadata['id']] = i
-                print('foundation_accession_genus_dic', foundation_accession_genus_dic)
+                # only genus is needed in description at this point (TODO, check this)
+                seq.metadata['description'] = i
                 yield seq
 
 
 def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
     process = subprocess.Popen("fasttree -nt -quiet "+in_name+"" +
-                               " > "+ghost_tree_fp+"/nr_foundation_tree_gt.nwk", shell=True,
+                               " > "+ghost_tree_fp+"/nr_foundation_tree_gt.nwk",
+                               shell=True,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()

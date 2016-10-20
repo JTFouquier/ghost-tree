@@ -34,7 +34,6 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
     def test_make_nr_foundation_alignment_few(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
                                                self.extension_genus_dic_few)
-        print('list results', list(result))
 
         self.assertEqual(list(result), [
             Sequence("AAA---", metadata={"id": "PBB1", "description": "Phoma"}),

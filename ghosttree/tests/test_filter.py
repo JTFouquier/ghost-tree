@@ -31,10 +31,6 @@ class TestFilterPositions(unittest.TestCase):
         aln = [Sequence("ACC--G-GGTA..", metadata={'id': "seq1"}),
                Sequence("TCC--G-GGCA..", metadata={'id': "seq2"})]
         msa = TabularMSA(aln, minter='id')
-        print(msa)
-
-
-
 
         self.assertEqual(result, aln)
 
