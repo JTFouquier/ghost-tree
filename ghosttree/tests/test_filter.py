@@ -8,7 +8,8 @@
 import unittest
 from io import StringIO
 
-from skbio import Sequence
+from skbio import TabularMSA
+from skbio import DNA
 
 from ghosttree.filter import filter_positions
 
@@ -28,31 +29,34 @@ class TestFilterPositions(unittest.TestCase):
                                   self.maximum_gap_frequency_50,
                                   self.maximum_position_entropy_100)
 
-        aln = [Sequence("ACC--G-GGTA..", metadata={'id': "seq1"}),
-               Sequence("TCC--G-GGCA..", metadata={'id': "seq2"})]
-        msa = TabularMSA(aln, minter='id')
+        aln = TabularMSA([DNA('ACC', metadata={'id': "seq1"}),
+                         DNA('ACT', metadata={'id': "seq2"}),
+                         DNA('ATG', metadata={'id': "seq3"}),
+                         DNA('ATA', metadata={'id': "seq4"})])
 
-        self.assertEqual(result, aln)
+        self.assertEqual(str(result), str(aln))
 
     def test_filter_gap_low_entropy_med(self):
         result = filter_positions(self.alignment_with_gaps,
                                   self.maximum_gap_frequency_0,
                                   self.maximum_position_entropy_50)
-        aln = Alignment([Sequence('A', id="seq1"),
-                         Sequence('A', id="seq2"),
-                         Sequence('A', id="seq3"),
-                         Sequence('A', id="seq4")])
-        self.assertEqual(result, aln)
+        aln = TabularMSA([DNA('AC', metadata={'id': "seq1"}),
+                         DNA('AC', metadata={'id': "seq2"}),
+                         DNA('AT', metadata={'id': "seq3"}),
+                         DNA('AT', metadata={'id': "seq4"})])
+
+        self.assertEqual(str(result), str(aln))
 
     def test_filter_gap_high_entropy_low(self):
         result = filter_positions(self.alignment_with_gaps,
                                   self.maximum_gap_frequency_100,
                                   self.maximum_position_entropy_10)
-        aln = Alignment([Sequence('A-', id="seq1"),
-                         Sequence('A-', id="seq2"),
-                         Sequence('A-', id="seq3"),
-                         Sequence('A-', id="seq4")])
-        self.assertEqual(result, aln)
+        aln = TabularMSA([DNA('A-', metadata={'id': "seq1"}),
+                         DNA('A-', metadata={'id': "seq2"}),
+                         DNA('A-', metadata={'id': "seq3"}),
+                         DNA('A-', metadata={'id': "seq4"})])
+
+        self.assertEqual(str(result), str(aln))
 
 
 alignment_with_gaps = """>seq1

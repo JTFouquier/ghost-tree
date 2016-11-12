@@ -5,30 +5,31 @@
 #
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
-import skbio
+from skbio import TabularMSA, DNA
 
 
 def filter_positions(alignment_fh, maximum_gap_frequency,
                      maximum_position_entropy):
     """Filter gaps and high entropy positions from an alignment."""
-    # (TODO)
-    aln = skbio.alignment.TabularMSA(alignment_fh, 'phylip')
-
+    aln = TabularMSA.read(alignment_fh, constructor=DNA)
     aln = _filter_gap_positions(aln, maximum_gap_frequency)
     aln = _filter_high_entropy_positions(aln, maximum_position_entropy)
     return aln
 
 
 def _filter_gap_positions(aln, maximum_gap_frequency):
-    aln = aln.omit_gap_positions(maximum_gap_frequency)
+
+    aln_gap_frequencies = (aln.gap_frequencies(axis='sequence', relative=False) / aln._seqs.count())
+    aln_gap_frequencies_boolean = (aln_gap_frequencies <= maximum_gap_frequency)
+    aln = aln.iloc[:, aln_gap_frequencies_boolean]
+
     return aln
 
 
 def _filter_high_entropy_positions(aln, maximum_position_entropy):
-    entropies = aln.position_entropies(nan_on_non_standard_chars=False)
-    positions_to_keep = []
-    for position, entropy in enumerate(entropies):
-        if entropy < maximum_position_entropy:
-            positions_to_keep.append(position)
-    aln = aln.subalignment(positions_to_keep=positions_to_keep)
+
+    aln_entropies = aln.conservation(metric='inverse_shannon_uncertainty', gap_mode='include')
+    aln_entropies = 1 - aln_entropies
+    aln = aln[:, (aln_entropies <= maximum_position_entropy)]
+
     return aln
