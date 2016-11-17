@@ -11,12 +11,7 @@ import shutil
 import subprocess
 
 import skbio
-
-# (TODO) removing these makes 17 unit tests appear... adding them goes to 11
-# from skbio import TreeNode
-# from skbio.alignment import SequenceCollection
-# from skbio import read
-
+from skbio import TreeNode
 
 def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                extension_seq_fh,
@@ -81,13 +76,13 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     process = subprocess.Popen("muscle", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
-    if re.search("command not found", std_error):
+    if re.search("command not found", str(std_error)):
         print("muscle, multiple sequence aligner, is not found. Is it installed? Is it in your path?")
     std_output, std_error = "", ""
     process = subprocess.Popen("fasttree", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
-    if re.search("command not found", std_error):
+    if re.search("command not found", str(std_error)):
         print("fasttree, phylogenetic tree builder, is not found. Is it installed? Is it in your path?")
     os.mkdir("tmp")
     os.mkdir(ghost_tree_fp)
@@ -100,33 +95,37 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                    into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                    format="fasta")
     foundation_tree, all_std_error = _make_foundation_tree(ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
-                                                           std_error, ghost_tree_fp)
-    seqs = SequenceCollection.read(extension_seq_fh)
+                                                           str(std_error), ghost_tree_fp)
+    seqs = skbio.io.read(extension_seq_fh, format='fasta')
     for node in foundation_tree.tips():
+        print ('****************************\n\nnode: ', node)
         key_node, _ = str(node).split(":")
         key_node = foundation_accession_genus_dic[key_node]
-        try:
-            _make_mini_otu_files(key_node, extension_genus_accession_list_dic,
-                                 seqs)
-            process = subprocess.Popen("muscle -in tmp/mini_seq_gt.fasta" +
-                                       " -out" +
-                                       " tmp/mini_alignment_gt.fasta -quiet" +
-                                       " -maxiters 2 -diags1", shell=True,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            std_output, std_error = process.communicate()
-            process = subprocess.Popen("fasttree -nt -quiet" +
-                                       " tmp/mini_alignment_gt.fasta >" +
-                                       " tmp/mini_tree_gt.nwk", shell=True,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            std_output, std_error = process.communicate()
-            all_std_error += "FastTree warnings for genus "+key_node+" are:\n" + std_error + "\n"
-            mini_tree = read("tmp/mini_tree_gt.nwk", format='newick',
-                             into=TreeNode)
-            node.extend(mini_tree.root_at_midpoint().children[:])
-        except:
-            continue
+        _make_mini_otu_files(key_node, extension_genus_accession_list_dic,
+                             seqs)
+        process = subprocess.Popen("muscle -in tmp/mini_seq_gt.fasta" +
+                                   " -out" +
+                                   " tmp/mini_alignment_gt.fasta -quiet" +
+                                   " -maxiters 2 -diags1", shell=True,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        std_output, std_error = process.communicate()
+        print ('std out muscle', std_output)
+        print ('std error muscle', std_error)
+        process = subprocess.Popen("fasttree -nt -quiet" +
+                                   " tmp/mini_alignment_gt.fasta >" +
+                                   " tmp/mini_tree_gt.nwk", shell=True,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        std_output, std_error = process.communicate()
+        print ('std out ft', std_output)
+        print ('std error ft', std_error)
+        all_std_error += "FastTree warnings for genus "+key_node+" are:\n" + str(std_error) + "\n"
+        mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
+                                  into=TreeNode)
+        print ('mini tree:', mini_tree)
+        node.extend(mini_tree.root_at_midpoint().children[:])
+
     shutil.rmtree("tmp")
     ghost_tree_nwk = open(ghost_tree_fp + "/ghost_tree.nwk", "w")
     ghost_tree_nwk.write(str(foundation_tree))
@@ -136,8 +135,12 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
 
 
 def _make_accession_id_file(ghost_tree_fp):
-    ghosttree = TreeNode.read(ghost_tree_fp + "/ghost_tree.nwk")
-    output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt", "w")
+    # ghosttree = TreeNode.read(ghost_tree_fp + "/ghost_tree.nwk")
+
+    ghosttree = skbio.io.read(ghost_tree_fp + "/ghost_tree.nwk", format='newick',
+                           into=TreeNode)
+    output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt",
+                  "w")
     for node in ghosttree.tips():
         output.write(str(node.name)+"\n")
     output.close()
@@ -145,13 +148,22 @@ def _make_accession_id_file(ghost_tree_fp):
 
 def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
     keep = extension_genus_accession_list_dic[key_node]
+
     output_file = open("tmp/mini_seq_gt.fasta", "w")
+    print ('***mini otu files function: \n')
+    print ('seqs (only allows iteration once: ', seqs)
+    print ('keep: ', keep)
+
+    # Not entering this for loop, except on first go.
+    # I see the generator (same hash, but it's not iterating through it)
     for seq in seqs:
+        print ('seq in seqs: ', seq)
         if seq.metadata['id'] in keep:
+            print ('FOUND MATCH')
+            print ('seq', seq.metadata['id'])
             fasta_format = ">"+seq.metadata['id']+"\n"+str(seq)+"\n"
             output_file.write(fasta_format)
     output_file.close()
-    return fasta_format
 
 
 def _extension_genus_accession_dic(otu_file_fh, extension_taxonomy_fh):
@@ -209,7 +221,7 @@ def _make_nr_foundation_alignment(foundation_alignment_fh,
     all_genus_list = list(extension_genus_accession_list_dic.keys())
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
-    for seq in skbio.read(foundation_alignment_fh, format="fasta"):
+    for seq in skbio.io.read(foundation_alignment_fh, format="fasta"):
 
         for i in all_genus_list:
 
@@ -231,9 +243,12 @@ def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
-    all_std_error += "Error log for ghost-tree:\n\n\nSome genera may not contain " + \
-                     "any errors, so the genus is listed as a placeholder\n\n"
-    all_std_error += "FastTree warnings for the foundation_tree are:\n" + std_error + "\n"
-    foundation_tree = TreeNode.read(ghost_tree_fp + "/nr_foundation_tree_gt.nwk")
+    all_std_error += "Error log for ghost-tree:\n\n\nSome genera may not contain any errors, so the genus is listed as a placeholder\n\n"
+    all_std_error += "FastTree warnings for the foundation_tree are:\n" + str(std_error) + "\n"
+    # foundation_tree = TreeNode.read(ghost_tree_fp + "/nr_foundation_tree_gt.nwk")
+
+    foundation_tree = skbio.io.read(ghost_tree_fp + "/nr_foundation_tree_gt.nwk", format='newick', into=TreeNode)
     foundation_tree.root_at_midpoint()
+    print ('foundation tree', foundation_tree)
+
     return foundation_tree, all_std_error
