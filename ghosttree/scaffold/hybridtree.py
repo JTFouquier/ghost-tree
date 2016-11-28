@@ -11,7 +11,6 @@ import shutil
 import subprocess
 
 import skbio
-from skbio import TreeNode
 
 
 def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
@@ -92,14 +91,16 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dic(otu_file_fh,
                                        extension_taxonomy_fh)
-    to_write = _make_nr_foundation_alignment(foundation_alignment_fh,
-                                             extension_genus_accession_list_dic)
-    skbio.io.write(to_write,
+    nr_foundation_alignment = \
+        _make_nr_foundation_alignment(foundation_alignment_fh,
+                                      extension_genus_accession_list_dic)
+    skbio.io.write(nr_foundation_alignment,
                    into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                    format="fasta")
-    foundation_tree, all_std_error = _make_foundation_tree(ghost_tree_fp +
-                                                           "/nr_foundation_alignment_gt.fasta",
-                                                           str(std_error), ghost_tree_fp)
+    foundation_tree, all_std_error = \
+        _make_foundation_tree(ghost_tree_fp +
+                              "/nr_foundation_alignment_gt.fasta",
+                              str(std_error), ghost_tree_fp)
     seqs = list(skbio.io.read(extension_seq_fh, format='fasta'))
     for node in foundation_tree.tips():
         key_node, _ = str(node).split(":")
@@ -122,7 +123,7 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
         all_std_error += "FastTree warnings for genus "+key_node+" are:\n" \
                          + str(std_error) + "\n"
         mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
-                                  into=TreeNode)
+                                  into=skbio.TreeNode)
         node.extend(mini_tree.root_at_midpoint().children[:])
 
     shutil.rmtree("tmp")
@@ -135,7 +136,7 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
 
 def _make_accession_id_file(ghost_tree_fp):
     ghosttree = skbio.io.read(ghost_tree_fp + "/ghost_tree.nwk",
-                              format='newick', into=TreeNode)
+                              format='newick', into=skbio.TreeNode)
     output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt",
                   "w")
     for node in ghosttree.tips():
@@ -200,7 +201,6 @@ def _create_taxonomy_dic(extension_taxonomy_fh):
         accession = accession.strip()
         full_taxonomy_line = full_taxonomy_line.strip()
         accession_taxonomy_dic[accession] = full_taxonomy_line
-    line = ""
     extension_taxonomy_fh.close()
     return accession_taxonomy_dic
 
@@ -242,7 +242,7 @@ def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
 
     foundation_tree = skbio.io.read(ghost_tree_fp +
                                     "/nr_foundation_tree_gt.nwk",
-                                    format='newick', into=TreeNode)
+                                    format='newick', into=skbio.TreeNode)
     foundation_tree.root_at_midpoint()
 
     return foundation_tree, all_std_error
