@@ -19,7 +19,8 @@ def filter_positions(alignment_fh, maximum_gap_frequency,
 
 def _filter_gap_positions(aln, maximum_gap_frequency):
 
-    aln_gap_frequencies = (aln.gap_frequencies(axis='sequence', relative=False) / aln._seqs.count())
+    aln_gap_frequencies = (aln.gap_frequencies(axis='sequence',
+                                               relative=False) / aln._seqs.count())
     aln_gap_frequencies_boolean = (aln_gap_frequencies <= maximum_gap_frequency)
     aln = aln.iloc[:, aln_gap_frequencies_boolean]
 
@@ -28,7 +29,8 @@ def _filter_gap_positions(aln, maximum_gap_frequency):
 
 def _filter_high_entropy_positions(aln, maximum_position_entropy):
 
-    aln_entropies = aln.conservation(metric='inverse_shannon_uncertainty', gap_mode='include')
+    aln_entropies = aln.conservation(metric='inverse_shannon_uncertainty',
+                                     gap_mode='include')
     aln_entropies = 1 - aln_entropies
     aln = aln[:, (aln_entropies <= maximum_position_entropy)]
 

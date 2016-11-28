@@ -66,14 +66,18 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
 
     def test_make_mini_otu_files(self):
         os.system("mkdir tmp")
-        self.extension_seqs = skbio.read(self.extension_seqs, 'fasta')
-        result = _make_mini_otu_files(self.key_node,
-                                      self.extension_genus_dic_few,
-                                      self.extension_seqs)
+        extension_seqs = list(skbio.io.read(self.extension_seqs,
+                                            format='fasta'))
+
+        _make_mini_otu_files(self.key_node,
+                             self.extension_genus_dic_few,
+                             extension_seqs)
+
+        result = str(list(skbio.io.read('tmp/mini_seq_gt.fasta',
+                                        format='fasta'))[0])
+
         os.system("rm -r tmp")
-        self.assertEqual(result, """>P1\nTTAAAAAA\n""")
-        # only one loop, therefor only testing one returned sequence from list
-        # with two sequence accession numbers
+        self.assertEqual(result, 'TTAAAAAA')
 
     def test_extension_genus_accession_dic(self):
         test = {'Candida': ['C1', 'C2', 'C3', 'M1', 'C4', 'C5', 'M4'],
