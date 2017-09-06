@@ -35,6 +35,7 @@ class TestCompareTipToTipDistances(unittest.TestCase):
         self.assertAlmostEqual(p_value, 0.69599999999999995)
         self.assertEqual(n, 3)
 
+
 tree1 = "[example](a:0.1, 'b_b''':0.2, (c:0.3, d_d:0.4)e:0.5)f:0.0;"
 tree2 = "[example](a:0.1, 'b_b''':0.2, (g:0.3, d_d:0.1)e:0.1)f:0.0;"
 

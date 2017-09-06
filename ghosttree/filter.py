@@ -5,13 +5,19 @@
 #
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
-from skbio import TabularMSA, DNA
+from skbio import TabularMSA, DNA, RNA
 
 
 def filter_positions(alignment_fh, maximum_gap_frequency,
                      maximum_position_entropy):
     """Filter gaps and high entropy positions from an alignment."""
-    aln = TabularMSA.read(alignment_fh, constructor=DNA)
+
+    with alignment_fh:
+        try:
+            aln = TabularMSA.read(alignment_fh, constructor=DNA)
+        except ValueError:
+            alignment_fh.seek(0)
+            aln = TabularMSA.read(alignment_fh, constructor=RNA)
     aln = _filter_gap_positions(aln, maximum_gap_frequency)
     aln = _filter_high_entropy_positions(aln, maximum_position_entropy)
     return aln
@@ -30,7 +36,7 @@ def _filter_gap_positions(aln, maximum_gap_frequency):
 def _filter_high_entropy_positions(aln, maximum_position_entropy):
 
     aln_entropies = aln.conservation(metric='inverse_shannon_uncertainty',
-                                     gap_mode='include')
+                                     degenerate_mode='nan', gap_mode='include')
     aln_entropies = 1 - aln_entropies
     aln = aln[:, (aln_entropies <= maximum_position_entropy)]
 

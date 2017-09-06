@@ -95,6 +95,7 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
                                                 self.extension_taxonomy_unids)
         self.assertDictEqual(result, test)
 
+
 key_node = 'Phoma'
 
 extension_genus_dic_few = {'Candida': ['C1', 'C2', 'C3', 'P2'],
