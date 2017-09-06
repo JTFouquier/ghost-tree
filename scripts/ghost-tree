@@ -72,7 +72,7 @@ def compare_trees(tree_file1, tree_file2, method):
 @click.argument("foundation-alignment-file", type=click.File("U"))
 @click.argument("maximum-gap-frequency", type=float)
 @click.argument("maximum-position-entropy", type=float)
-@click.argument("output-alignment-file", type=click.File("w"))
+@click.argument("output-alignment-file", type=click.STRING)
 def filter_alignment_positions(foundation_alignment_file,
                                maximum_gap_frequency,
                                maximum_position_entropy,
@@ -102,7 +102,7 @@ def silva():
 @click.argument("aligned-fasta-file", type=click.File("U"))
 @click.argument("accession-file", type=click.File("U"))
 @click.argument("taxonomy-file", type=click.File("U"))
-@click.argument("output-file", type=click.File("w"))
+@click.argument("output-file", type=click.STRING)
 def extract_fungi(aligned_fasta_file, accession_file, taxonomy_file,
                   output_file):
     """'extract-fungi' uses files that are unique to the
