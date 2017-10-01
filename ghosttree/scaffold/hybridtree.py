@@ -304,10 +304,6 @@ def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
 def _collapse_taxa_line(accession_ids: list, taxonomy: pd.Series,
                         graft_level: int) -> pd.DataFrame:
     """This function was copied and modified from q2-taxa from Qiime2."""
-    if graft_level < 1:
-        raise ValueError('Requested level of %d is too low. Must be greater '
-                         'than or equal to 1.' % graft_level)
-
     # Assemble the taxonomy data
     max_observed_level = _get_max_level(taxonomy)
     if graft_level > max_observed_level:
@@ -318,7 +314,7 @@ def _collapse_taxa_line(accession_ids: list, taxonomy: pd.Series,
     accession_taxonomy_dict = {}
     index_count = 0
     for tax in taxonomy:
-        new_taxa = _collapse(tax, max_observed_level, graft_level)
+        new_taxa = _collapse(tax, graft_level)
         accession_taxonomy_dict[accession_ids[index_count]] = new_taxa
         index_count += 1
 
@@ -330,12 +326,8 @@ def _get_max_level(taxonomy):
     return taxonomy.apply(lambda x: len(x.split(';'))).max()
 
 
-def _collapse(tax, max_observed_level, level):
+def _collapse(tax, level):
     """This function was copied and modified from q2-taxa from Qiime2."""
     tax = [x.strip() for x in tax.split(';')]
-    if len(tax) < max_observed_level:
-        padding = ['__'] * (max_observed_level - len(tax))
-        tax.extend(padding)
-    # return ';'.join(tax[:level])
     taxa = tax[:level][-1].split('__')[1].capitalize()
     return taxa
