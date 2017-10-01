@@ -13,10 +13,9 @@ import skbio
 from skbio import Sequence
 
 from ghosttree.scaffold.hybridtree import _make_nr_foundation_alignment
-from ghosttree.scaffold.hybridtree import _create_taxonomy_dic
+from ghosttree.scaffold.hybridtree import _create_taxonomy_dict
 from ghosttree.scaffold.hybridtree import _make_mini_otu_files
-from ghosttree.scaffold.hybridtree import _extension_genus_accession_dic
-from ghosttree.scaffold.hybridtree import _make_nr_foundation_newick
+from ghosttree.scaffold.hybridtree import _extension_genus_accession_dict
 
 
 class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
@@ -31,21 +30,28 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         self.extension_genus_dic_few = extension_genus_dic_few
         self.extension_genus_dic_none = extension_genus_dic_none
         self.key_node = key_node
+        self.graft_letter_g = 'g'
+        self.graft_level_6 = 6
+        self.graft_level_5 = 5
         self.foundation_taxonomy = StringIO(foundation_taxonomy)
         self.foundation_newick = StringIO(foundation_newick)
 
     def test_make_nr_foundation_alignment_few(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
-                                               self.extension_genus_dic_few)
+                                               self.extension_genus_dic_few,
+                                               self.graft_letter_g)
 
         self.assertEqual(list(result), [
-            Sequence("AAA---", metadata={"id": "PBB1", "description": "Phoma"}),
-            Sequence("AAG---", metadata={"id": "CBB3", "description": "Candida"}),
+            Sequence("AAA---", metadata={"id": "PBB1",
+                                         "description": "Phoma"}),
+            Sequence("AAG---", metadata={"id": "CBB3",
+                                         "description": "Candida"}),
         ])
 
     def test_make_nr_foundation_alignment_none(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
-                                               self.extension_genus_dic_none)
+                                               self.extension_genus_dic_none,
+                                               self.graft_letter_g)
         self.assertEqual(list(result), [])
 
     # def test_newick_file_few_extensions(self):
@@ -54,24 +60,21 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
     #
     #     print('result', result)
 
-    def test_create_taxonomy_dic_many(self):
-        test = {'P1': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Phoma;s__El',
-                'P2': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__phoma;s__El',
-                'C1': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El',
-                'C2': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El',
-                'C3': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El',
-                'C4': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El',
-                'C5': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El',
-                'M1': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El',
-                'M2': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El',
-                'M3': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El',
-                'M4': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El'}
-        result = _create_taxonomy_dic(self.extension_taxonomy)
+    def test_create_taxonomy_dic_many_genus(self):
+
+        test = {'P1': 'Phoma', 'P2': 'Phoma', 'C1': 'Candida', 'C2': 'Candida',
+                'C3': 'Candida', 'C4': 'Candida', 'C5': 'Candida',
+                'M1': 'Mucor', 'M2': 'Mucor', 'M3': 'Mucor', 'M4': 'Mucor'}
+
+        result = _create_taxonomy_dict(self.extension_taxonomy,
+                                       self.graft_level_6)
+        print('\n\n\nlalala', result)
         self.assertDictEqual(result, test)
 
     def test_create_taxonomy_dic_none(self):
         with self.assertRaises(ValueError):
-            list(_create_taxonomy_dic(self.extension_taxonomy_none))
+            list(_create_taxonomy_dict(self.extension_taxonomy_none,
+                                       9))
 
     def test_make_mini_otu_files(self):
         os.system("mkdir tmp")
@@ -92,16 +95,28 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         test = {'Candida': ['C1', 'C2', 'C3', 'M1', 'C4', 'C5', 'M4'],
                 'Mucor': ['M2', 'M3'],
                 'Phoma': ['P1', 'P2']}
-        result = _extension_genus_accession_dic(self.otu_clusters,
-                                                self.extension_taxonomy)
+        result = _extension_genus_accession_dict(self.otu_clusters,
+                                                 self.extension_taxonomy,
+                                                 self.graft_level_6)
         self.assertDictEqual(result, test)
 
-    def test_extension_genus_accession_dic_unidentifieds(self):
+    def test_extension_genus_accession_dic_unidentifieds_level_6_genus(self):
         test = {'Candida': ['C1', 'C2', 'C3', 'M1'],
                 'Mucor': ['M2', 'M3', 'C4', 'C5', 'M4'],
                 'Phoma': ['P1', 'P2']}
-        result = _extension_genus_accession_dic(self.otu_clusters,
-                                                self.extension_taxonomy_unids)
+        result = _extension_genus_accession_dict(self.otu_clusters,
+                                                 self.extension_taxonomy_unids,
+                                                 self.graft_level_6)
+        self.assertDictEqual(result, test)
+
+    def test_extension_genus_accession_dic_unidentifieds_level_5_family(self):
+        test = {'Saccharomycetaceae': ['C1', 'C2', 'C3', 'M1', 'C4', 'C5',
+                'M4'], 'Didymellaceae': ['P1', 'P2'], 'Mucoraceae':
+                ['M2', 'M3']}
+        result = _extension_genus_accession_dict(self.otu_clusters,
+                                                 self.extension_taxonomy_unids,
+                                                 self.graft_level_5)
+
         self.assertDictEqual(result, test)
 
 
@@ -131,17 +146,17 @@ M3\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
 M4\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
 """
 
-extension_taxonomy_unids = """P1\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Phoma;s__El
-P2\tk__Fungi;p__As;c__Do;o__My;f__Els;g__phoma;s__El
-C1\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El
-C2\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Candida;s__El
-C3\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Unidentified;s__El
-C4\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Unidentified;s__El
-C5\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Unidentified;s__El
-M1\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
-M2\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
-M3\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
-M4\tk__Fungi;p__As;c__Do;o__My;f__Els;g__Mucor;s__El
+extension_taxonomy_unids = """P1\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g__Phoma;s__El
+P2\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g__Phoma;s__El
+C1\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Candida;s__El
+C2\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Candida;s__El
+C3\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
+C4\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
+C5\tk__Fungi;p__As;c__Do;o__My;f__Unidentified;g__Unidentified;s__El
+M1\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M2\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M3\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M4\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
 """
 
 extension_taxonomy_none = """P1\tk__Fungi;p__As;c__Do;o__My;f__Els;Phoma;s__El

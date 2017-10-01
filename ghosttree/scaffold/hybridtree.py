@@ -11,12 +11,14 @@ import shutil
 import subprocess
 
 import skbio
+import pandas as pd
 
 
 def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                extension_seq_fh,
                                foundation_fh,
-                               ghost_tree_fp):
+                               ghost_tree_fp,
+                               graft_level):
     """Combines two genetic databases into one phylogenetic tree.
 
     Some genetic databases provide finer taxonomic resolution,
@@ -72,14 +74,17 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     """
     global foundation_accession_genus_dic  # needs global assignment for flake8
     foundation_accession_genus_dic = {}
-    std_output, std_error = "", ""
+    graft_letter = graft_level
+    graft_level_map = {'p': 2, 'c': 3, 'o': 4, 'f': 5, 'g': 6}
+    graft_level = graft_level_map[graft_letter]
+
     process = subprocess.Popen("muscle", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
     if re.search("command not found", str(std_error)):
         print("muscle, multiple sequence aligner, is not found. "
               "Is it installed? Is it in your path?")
-    std_output, std_error = "", ""
+
     process = subprocess.Popen("fasttree", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     std_output, std_error = process.communicate()
@@ -89,20 +94,22 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     os.mkdir("tmp")
     os.mkdir(ghost_tree_fp)
     extension_genus_accession_list_dic = \
-        _extension_genus_accession_dic(otu_file_fh,
-                                       extension_taxonomy_fh)
+        _extension_genus_accession_dict(otu_file_fh, extension_taxonomy_fh,
+                                        graft_level)
 
     sniffer_results = skbio.io.sniff(foundation_fh)[0]
 
     if sniffer_results == 'newick':
         foundation_tree = \
             _make_nr_foundation_newick(foundation_fh,
-                                       extension_genus_accession_list_dic)
+                                       extension_genus_accession_list_dic,
+                                       graft_letter)
 
     if sniffer_results == 'fasta':
         nr_foundation_alignment = \
             _make_nr_foundation_alignment(foundation_fh,
-                                          extension_genus_accession_list_dic)
+                                          extension_genus_accession_list_dic,
+                                          graft_letter)
         skbio.io.write(nr_foundation_alignment,
                        into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
                        format="fasta")
@@ -167,9 +174,11 @@ def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
     output_file.close()
 
 
-def _extension_genus_accession_dic(otu_file_fh, extension_taxonomy_fh):
+def _extension_genus_accession_dict(otu_file_fh, extension_taxonomy_fh,
+                                    graft_level):
     """Find representative genus for each "extension tree cluster" """
-    accession_taxonomy_dic = _create_taxonomy_dic(extension_taxonomy_fh)
+    accession_taxonomy_dic = _create_taxonomy_dict(extension_taxonomy_fh,
+                                                   graft_level)
     all_genera_in_extension_list = []
     extension_genus_accession_list_dic = {}
     for line in otu_file_fh:
@@ -178,11 +187,8 @@ def _extension_genus_accession_dic(otu_file_fh, extension_taxonomy_fh):
             del accession_list[0]
         otu_genus_list = []
         for i in accession_list:
-            full_taxonomy_line = accession_taxonomy_dic[i]
-            genus = full_taxonomy_line.split(";")
-            genus = genus[-2]
-            genus = genus[3:].capitalize()
-            otu_genus_list.append(genus)
+            taxonomy = accession_taxonomy_dic[i]
+            otu_genus_list.append(taxonomy)
         most_common_genus = max(set(otu_genus_list), key=otu_genus_list.count)
         if most_common_genus == "Unidentified":
             otu_genus_set = set(otu_genus_list)
@@ -203,21 +209,26 @@ def _extension_genus_accession_dic(otu_file_fh, extension_taxonomy_fh):
     return extension_genus_accession_list_dic
 
 
-def _create_taxonomy_dic(extension_taxonomy_fh):
-    accession_taxonomy_dic = {}
+def _create_taxonomy_dict(extension_taxonomy_fh, graft_level):
+
+    accession_id_list = []
+    taxonomy_list = []
     for line in extension_taxonomy_fh:
-        if "g__" not in line:
-            raise ValueError("Taxonomy file must contain genera")
-        accession, full_taxonomy_line = line.rstrip("\n").split("\t")
-        accession = accession.strip()
-        full_taxonomy_line = full_taxonomy_line.strip()
-        accession_taxonomy_dic[accession] = full_taxonomy_line
-    extension_taxonomy_fh.close()
-    return accession_taxonomy_dic
+        splitline = line.split('\t')
+        accession = splitline[0].strip()
+        taxonomy_line = splitline[1].strip()
+        accession_id_list.append(accession)
+        taxonomy_list.append(taxonomy_line)
+
+    ds_taxonomy = pd.Series(taxonomy_list)
+    accession_taxonomy_dict = _collapse_taxa_line(accession_id_list,
+                                                  ds_taxonomy, graft_level)
+    return accession_taxonomy_dict
 
 
 def _make_nr_foundation_newick(foundation_fh,
-                               extension_genus_accession_list_dic):
+                               extension_genus_accession_list_dic,
+                               graft_letter):
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
     all_genus_list = list(extension_genus_accession_list_dic.keys())
@@ -236,7 +247,7 @@ def _make_nr_foundation_newick(foundation_fh,
             for graft_taxa in all_genus_list:
                 if_case = (re.search(";" + graft_taxa + ";",
                                      foundation_taxonomy.lower()) or
-                           re.search("g__" + graft_taxa + ";",
+                           re.search(graft_letter + "__" + graft_taxa + ";",
                                      foundation_taxonomy))
 
                 if if_case:
@@ -245,26 +256,25 @@ def _make_nr_foundation_newick(foundation_fh,
                     foundation_unique_accessions.append(accession)
 
     sheared_tree = foundation_tree.shear(foundation_unique_accessions)
-    print(sheared_tree)
     return sheared_tree
 
 
 def _make_nr_foundation_alignment(foundation_fh,
-                                  extension_genus_accession_list_dic):
+                                  extension_genus_accession_list_dic,
+                                  graft_letter):
     all_genus_list = list(extension_genus_accession_list_dic.keys())
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
     for seq in skbio.io.read(foundation_fh, format="fasta"):
-
         for i in all_genus_list:
 
             if_case = (re.search(";" + i + ";", seq.metadata['description']) or
-                       re.search("g__" + i + ";", seq.metadata['description']))
+                       re.search(graft_letter + "__" + i + ";",
+                                 seq.metadata['description']))
 
             if if_case:
                 all_genus_list.remove(i)
                 foundation_accession_genus_dic[seq.metadata['id']] = i
-                #  only genus is needed in description at this point(TODO check)
                 seq.metadata['description'] = i
                 yield seq
 
@@ -289,3 +299,43 @@ def _make_foundation_tree(in_name, all_std_error, ghost_tree_fp):
                                     format='newick', into=skbio.TreeNode)
     foundation_tree.root_at_midpoint()
     return foundation_tree, all_std_error
+
+
+def _collapse_taxa_line(accession_ids: list, taxonomy: pd.Series,
+                        graft_level: int) -> pd.DataFrame:
+    """This function was copied and modified from q2-taxa from Qiime2."""
+    if graft_level < 1:
+        raise ValueError('Requested level of %d is too low. Must be greater '
+                         'than or equal to 1.' % graft_level)
+
+    # Assemble the taxonomy data
+    max_observed_level = _get_max_level(taxonomy)
+    if graft_level > max_observed_level:
+        raise ValueError('Requested level of %d is larger than the maximum '
+                         'level available in taxonomy data (%d).' %
+                         (graft_level, max_observed_level))
+
+    accession_taxonomy_dict = {}
+    index_count = 0
+    for tax in taxonomy:
+        new_taxa = _collapse(tax, max_observed_level, graft_level)
+        accession_taxonomy_dict[accession_ids[index_count]] = new_taxa
+        index_count += 1
+
+    return accession_taxonomy_dict
+
+
+def _get_max_level(taxonomy):
+    """This function was copied from q2-taxa from Qiime2."""
+    return taxonomy.apply(lambda x: len(x.split(';'))).max()
+
+
+def _collapse(tax, max_observed_level, level):
+    """This function was copied and modified from q2-taxa from Qiime2."""
+    tax = [x.strip() for x in tax.split(';')]
+    if len(tax) < max_observed_level:
+        padding = ['__'] * (max_observed_level - len(tax))
+        tax.extend(padding)
+    # return ';'.join(tax[:level])
+    taxa = tax[:level][-1].split('__')[1].capitalize()
+    return taxa

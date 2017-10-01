@@ -175,11 +175,15 @@ def scaffold():
 @click.argument("extension-trees-sequence-file", type=click.File("U"))
 @click.argument("foundation-file", type=click.File("U"))
 @click.argument("ghost-tree-output-folder", type=click.STRING)
+@click.option('--graft-level', type=click.Choice(['p', 'c', 'o', 'f', 'g']),
+              default='g',
+              help="Taxonomic level to graft extensions to foundation; this "
+                   "option is experimental; default is g (genus)")
 @click.option("--stderr", is_flag=True, help="'saves error log file")
 @click.option("--foundation_alignment", is_flag=True, help="saves non-redundant foundation alignment file")
 @click.option("--foundation_tree", is_flag=True, help="saves foundation phylogenetic tree file")
 @click.option("--exclude_id_list", is_flag=True, help="will not save accession id file")
-def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
+def hybrid_tree(graft_level, stderr, foundation_alignment, foundation_tree, exclude_id_list,
                 extension_trees_otu_map, extension_trees_taxonomy_file,
                 extension_trees_sequence_file, foundation_file,
                 ghost_tree_output_folder):
@@ -243,7 +247,8 @@ def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
                                               extension_trees_taxonomy_file,
                                               extension_trees_sequence_file,
                                               foundation_file,
-                                              ghost_tree_output_folder)
+                                              ghost_tree_output_folder,
+                                              graft_level)
 
     if stderr:
         logfile = open(ghost_tree_output_folder + "/ghost_tree_log.txt", "w")
@@ -254,7 +259,8 @@ def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
         pass
     else:
         try:
-            os.unlink(ghost_tree_output_folder + "/nr_foundation_alignment_gt.fasta")
+            os.unlink(ghost_tree_output_folder +
+                      "/nr_foundation_alignment_gt.fasta")
         except FileNotFoundError:
             pass
 
@@ -267,7 +273,8 @@ def hybrid_tree(stderr, foundation_alignment, foundation_tree, exclude_id_list,
             pass
 
     if exclude_id_list:
-        os.unlink(ghost_tree_output_folder + "/ghost_tree_extension_accession_ids.txt")
+        os.unlink(ghost_tree_output_folder +
+                  "/ghost_tree_extension_accession_ids.txt")
 
 
 if __name__ == "__main__":
