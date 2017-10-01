@@ -110,14 +110,24 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         self.assertDictEqual(result, test)
 
     def test_extension_genus_accession_dic_unidentifieds_level_5_family(self):
-        test = {'Saccharomycetaceae': ['C1', 'C2', 'C3', 'M1', 'C4', 'C5',
-                'M4'], 'Didymellaceae': ['P1', 'P2'], 'Mucoraceae':
-                ['M2', 'M3']}
+        # There is a tie breaker here so data can switch to either
+        # Saccharomycetaceae OR Mucoraceae randomly (no priority).
+        test_case_1 = {'Saccharomycetaceae': ['C1', 'C2', 'C3', 'M1', 'C4',
+                       'C5', 'M4'], 'Didymellaceae': ['P1', 'P2'],
+                       'Mucoraceae': ['M2', 'M3']}
+
+        test_case_2 = {'Mucoraceae': ['M2', 'M3', 'C4', 'C5', 'M4'],
+                       'Saccharomycetaceae': ['C1', 'C2', 'C3', 'M1'],
+                       'Didymellaceae': ['P1', 'P2']}
+
         result = _extension_genus_accession_dict(self.otu_clusters,
                                                  self.extension_taxonomy_unids,
                                                  self.graft_level_5)
 
-        self.assertDictEqual(result, test)
+        try:
+            self.assertDictEqual(result, test_case_1)
+        except AssertionError:
+            self.assertDictEqual(result, test_case_2)
 
 
 key_node = 'Phoma'

@@ -1,7 +1,0 @@
-PBB1	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Phoma;s__El
-PBB2	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Phoma;s__El
-PBB3	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Phoma;s__El
-CBB1	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Cladosporium;s__El
-CBB2	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Aspergillus;s__El
-MBB1	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Mucor;s__El
-CBB3	k__Fungi;p__Asco;c__Do;o__My;f__Els;g__Candida;s__El
