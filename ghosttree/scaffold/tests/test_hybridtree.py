@@ -24,6 +24,7 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         self.extension_taxonomy = StringIO(extension_taxonomy)
         self.extension_taxonomy_unids = StringIO(extension_taxonomy_unids)
         self.extension_taxonomy_none = StringIO(extension_taxonomy_none)
+        self.extension_tax_lots_unids = StringIO(extension_tax_lots_unids)
         self.extension_seqs = StringIO(extension_seqs)
         self.foundation_alignment = StringIO(foundation_alignment)
         self.ghost_tree_fp = StringIO(ghost_tree_fp)
@@ -109,6 +110,14 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
                                                  self.graft_level_6)
         self.assertDictEqual(result, test)
 
+    def test_extension_genus_accession_dic_lots_unids_level_6_genus(self):
+        test = {'Mucor': ['C1', 'C2', 'C3', 'M1', 'M2', 'M3', 'C4', 'C5',
+                          'M4'], 'Phoma': ['P1', 'P2']}
+        result = _extension_genus_accession_dict(self.otu_clusters,
+                                                 self.extension_tax_lots_unids,
+                                                 self.graft_level_6)
+        self.assertDictEqual(result, test)
+
     def test_extension_genus_accession_dic_unidentifieds_level_5_family(self):
         # There is a tie breaker here so data can switch to either
         # Saccharomycetaceae OR Mucoraceae randomly (no priority).
@@ -160,6 +169,19 @@ extension_taxonomy_unids = """P1\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g_
 P2\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g__Phoma;s__El
 C1\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Candida;s__El
 C2\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Candida;s__El
+C3\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
+C4\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
+C5\tk__Fungi;p__As;c__Do;o__My;f__Unidentified;g__Unidentified;s__El
+M1\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M2\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M3\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+M4\tk__Fungi;p__As;c__Do;o__My;f__Mucoraceae;g__Mucor;s__El
+"""
+
+extension_tax_lots_unids = """P1\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g__Phoma;s__El
+P2\tk__Fungi;p__As;c__Do;o__My;f__Didymellaceae;g__Phoma;s__El
+C1\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
+C2\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
 C3\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
 C4\tk__Fungi;p__As;c__Do;o__My;f__Saccharomycetaceae;g__Unidentified;s__El
 C5\tk__Fungi;p__As;c__Do;o__My;f__Unidentified;g__Unidentified;s__El
