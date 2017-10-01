@@ -16,6 +16,7 @@ from ghosttree.scaffold.hybridtree import _make_nr_foundation_alignment
 from ghosttree.scaffold.hybridtree import _create_taxonomy_dic
 from ghosttree.scaffold.hybridtree import _make_mini_otu_files
 from ghosttree.scaffold.hybridtree import _extension_genus_accession_dic
+from ghosttree.scaffold.hybridtree import _make_nr_foundation_newick
 
 
 class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
@@ -30,6 +31,8 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         self.extension_genus_dic_few = extension_genus_dic_few
         self.extension_genus_dic_none = extension_genus_dic_none
         self.key_node = key_node
+        self.foundation_taxonomy = StringIO(foundation_taxonomy)
+        self.foundation_newick = StringIO(foundation_newick)
 
     def test_make_nr_foundation_alignment_few(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
@@ -37,13 +40,19 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
 
         self.assertEqual(list(result), [
             Sequence("AAA---", metadata={"id": "PBB1", "description": "Phoma"}),
-            Sequence("AAG---", metadata={"id": "CBB1", "description": "Candida"}),
+            Sequence("AAG---", metadata={"id": "CBB3", "description": "Candida"}),
         ])
 
     def test_make_nr_foundation_alignment_none(self):
         result = _make_nr_foundation_alignment(self.foundation_alignment,
                                                self.extension_genus_dic_none)
         self.assertEqual(list(result), [])
+
+    # def test_newick_file_few_extensions(self):
+    #     result = _make_nr_foundation_newick(self.foundation_newick,
+    #                                         self.extension_genus_dic_few)
+    #
+    #     print('result', result)
 
     def test_create_taxonomy_dic_many(self):
         test = {'P1': 'k__Fungi;p__As;c__Do;o__My;f__Els;g__Phoma;s__El',
@@ -175,9 +184,21 @@ AAAAAA
 A-A---
 >MBB1 Fungi;Mucor;
 A-TAAA
->CBB1 Fungi;Candida;
+>CBB3 Fungi;Candida;
 AAG---
 """
+
+foundation_newick = "(CBB2:0.00055,MBB1:0.23625,(CBB1:0.00055,(PBB2:0.00055," \
+                    "(CBB3:0.44621,(PBB3:0.00055,PBB1:0.00055)0.736:0.08656)" \
+                    "0.801:0.14667)0.437:0.00054)0.316:0.00055);"
+
+foundation_taxonomy = """PBB1\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Phoma;s__El
+PBB2\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Phoma;s__El
+PBB3\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Phoma;s__El
+CBB1\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Cladosporium;s__El
+CBB2\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Aspergillus;s__El
+MBB1\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Mucor;s__El
+CBB3\tk__Fungi;p__Asc;c__Do;o__My;f__El;g__Candida;s__El"""
 
 ghost_tree_fp = "ghost_tree_from_unit_test.nwk"
 
