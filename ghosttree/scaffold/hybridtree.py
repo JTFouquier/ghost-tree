@@ -120,7 +120,8 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         std_output, std_error = process.communicate()
-        all_std_error += "FastTree warnings for genus "+key_node+" are:\n" \
+        all_std_error += "FastTree warnings for genus " + key_node \
+                         + " are:\n" \
                          + str(std_error) + "\n"
         mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
                                   into=skbio.TreeNode)
@@ -140,7 +141,7 @@ def _make_accession_id_file(ghost_tree_fp):
     output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt",
                   "w")
     for node in ghosttree.tips():
-        output.write(str(node.name)+"\n")
+        output.write(str(node.name) + "\n")
     output.close()
 
 
@@ -151,7 +152,7 @@ def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
 
     for seq in seqs:
         if seq.metadata['id'] in keep:
-            fasta_format = ">"+seq.metadata['id']+"\n"+str(seq)+"\n"
+            fasta_format = ">" + seq.metadata['id'] + "\n" + str(seq) + "\n"
             output_file.write(fasta_format)
     output_file.close()
 
