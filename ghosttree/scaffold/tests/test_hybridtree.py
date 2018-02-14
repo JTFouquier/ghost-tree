@@ -36,8 +36,10 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
                                                self.extension_genus_dic_few)
 
         self.assertEqual(list(result), [
-            Sequence("AAA---", metadata={"id": "PBB1", "description": "Phoma"}),
-            Sequence("AAG---", metadata={"id": "CBB1", "description": "Candida"}),
+            Sequence("AAA---", metadata={"id": "PBB1",
+                                         "description": "Phoma"}),
+            Sequence("AAG---", metadata={"id": "CBB1",
+                                         "description": "Candida"}),
         ])
 
     def test_make_nr_foundation_alignment_none(self):

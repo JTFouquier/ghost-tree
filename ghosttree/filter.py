@@ -25,9 +25,11 @@ def filter_positions(alignment_fh, maximum_gap_frequency,
 
 def _filter_gap_positions(aln, maximum_gap_frequency):
 
-    aln_gap_frequencies = (aln.gap_frequencies(axis='sequence',
-                                               relative=False) / aln._seqs.count())
-    aln_gap_frequencies_boolean = (aln_gap_frequencies <= maximum_gap_frequency)
+    aln_gap_frequencies = (aln.gap_frequencies(
+                           axis='sequence',
+                           relative=False) / aln._seqs.count())
+    aln_gap_frequencies_boolean = (aln_gap_frequencies <=
+                                   maximum_gap_frequency)
     aln = aln.iloc[:, aln_gap_frequencies_boolean]
 
     return aln
