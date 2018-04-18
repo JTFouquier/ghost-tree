@@ -18,7 +18,7 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                extension_seq_fh,
                                foundation_fh,
                                ghost_tree_fp,
-                               graft_level):
+                               graft_level, foundation_taxonomy):
     """Combines two genetic databases into one phylogenetic tree.
 
     Some genetic databases provide finer taxonomic resolution,
@@ -103,7 +103,7 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
         foundation_tree = \
             _make_nr_foundation_newick(foundation_fh,
                                        extension_genus_accession_list_dic,
-                                       graft_letter)
+                                       graft_letter, foundation_taxonomy)
 
     if sniffer_results == 'fasta':
         nr_foundation_alignment = \
@@ -111,7 +111,8 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                           extension_genus_accession_list_dic,
                                           graft_letter)
         skbio.io.write(nr_foundation_alignment,
-                       into=ghost_tree_fp + "/nr_foundation_alignment_gt.fasta",
+                       into=ghost_tree_fp +
+                       "/nr_foundation_alignment_gt.fasta",
                        format="fasta")
         foundation_tree, all_std_error = \
             _make_foundation_tree(ghost_tree_fp +
@@ -138,8 +139,8 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         std_output, std_error = process.communicate()
-        all_std_error += "FastTree warnings for genus "+key_node+" are:\n" \
-                         + str(std_error) + "\n"
+        all_std_error += "FastTree warnings for genus " + key_node + \
+                         " are:\n" + str(std_error) + "\n"
         mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
                                   into=skbio.TreeNode)
         node.extend(mini_tree.root_at_midpoint().children[:])
@@ -159,7 +160,7 @@ def _make_accession_id_file(ghost_tree_fp):
     output = open(ghost_tree_fp + "/ghost_tree_extension_accession_ids.txt",
                   "w")
     for node in ghosttree.tips():
-        output.write(str(node.name)+"\n")
+        output.write(str(node.name) + "\n")
     output.close()
 
 
@@ -170,7 +171,7 @@ def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
 
     for seq in seqs:
         if seq.metadata['id'] in keep:
-            fasta_format = ">"+seq.metadata['id']+"\n"+str(seq)+"\n"
+            fasta_format = ">" + seq.metadata['id'] + "\n" + str(seq) + "\n"
             output_file.write(fasta_format)
     output_file.close()
 
@@ -229,7 +230,7 @@ def _create_taxonomy_dict(extension_taxonomy_fh, graft_level):
 
 def _make_nr_foundation_newick(foundation_fh,
                                extension_genus_accession_list_dic,
-                               graft_letter):
+                               graft_letter, foundation_taxonomy):
     global foundation_accession_genus_dic
     foundation_accession_genus_dic = {}
     all_genus_list = list(extension_genus_accession_list_dic.keys())
@@ -237,25 +238,23 @@ def _make_nr_foundation_newick(foundation_fh,
                                     into=skbio.TreeNode,
                                     convert_underscores=False)
 
-    foundation_taxonomy = 'minitaxonomy_foundation.txt'  # (TODO!!!!)
     foundation_unique_accessions = []
-    with open(foundation_taxonomy, 'U') as fin:
-        for line in fin:
-            splitline = line.split('\t')
-            accession = splitline[0].strip()
-            foundation_taxonomy = splitline[1].strip()
-            for graft_taxa in all_genus_list:
-                if_case = (re.search(";" + graft_taxa.lower() + ";",
-                                     foundation_taxonomy.lower()) or
-                           re.search(graft_letter + "__" + graft_taxa.lower() + ";",
-                                     foundation_taxonomy.lower()) or
-                           re.search(";" + graft_taxa.lower(),
-                                     foundation_taxonomy.lower()))
+    for line in foundation_taxonomy:
+        splitline = line.split('\t')
+        accession = splitline[0].strip()
+        foundation_taxonomy = splitline[1].strip()
+        for graft_taxa in all_genus_list:
+            if_case = (re.search(";" + graft_taxa.lower() + ";",
+                                 foundation_taxonomy.lower()) or
+                       re.search(graft_letter + "__" + graft_taxa.lower() + ";",
+                                 foundation_taxonomy.lower()) or
+                       re.search(";" + graft_taxa.lower(),
+                                 foundation_taxonomy.lower()))
 
-                if if_case:
-                    all_genus_list.remove(graft_taxa)
-                    foundation_accession_genus_dic[accession] = graft_taxa
-                    foundation_unique_accessions.append(accession)
+            if if_case:
+                all_genus_list.remove(graft_taxa)
+                foundation_accession_genus_dic[accession] = graft_taxa
+                foundation_unique_accessions.append(accession)
 
     sheared_tree = foundation_tree.shear(foundation_unique_accessions)
     return sheared_tree

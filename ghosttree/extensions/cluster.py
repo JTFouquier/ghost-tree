@@ -42,5 +42,5 @@ def preprocess_extension_tree_sequences(extension_sequences_fp,
 
     """
     similarity_threshold = str(similarity_threshold)
-    os.system("sumaclust -g -f -t "+similarity_threshold+" -O " +
+    os.system("sumaclust -g -f -t " + similarity_threshold + " -O " +
               "" + otu_formatted_fp + " " + extension_sequences_fp + "")

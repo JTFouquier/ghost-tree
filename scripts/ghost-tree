@@ -179,11 +179,17 @@ def scaffold():
               default='g',
               help="Taxonomic level to graft extensions to foundation; this "
                    "option is experimental; default is g (genus)")
+@click.option('-i', '--foundation-taxonomy', type=click.File('U'))
 @click.option("--stderr", is_flag=True, help="'saves error log file")
-@click.option("--foundation_alignment", is_flag=True, help="saves non-redundant foundation alignment file")
-@click.option("--foundation_tree", is_flag=True, help="saves foundation phylogenetic tree file")
-@click.option("--exclude_id_list", is_flag=True, help="will not save accession id file")
-def hybrid_tree(graft_level, stderr, foundation_alignment, foundation_tree, exclude_id_list,
+@click.option("--foundation-alignment", is_flag=True,
+              help="saves non-redundant foundation alignment file")
+@click.option("--foundation-tree", is_flag=True,
+              help="saves foundation phylogenetic tree file")
+@click.option("--exclude-id-list", is_flag=True,
+              help="will not save accession id file")
+def hybrid_tree(graft_level, foundation_taxonomy, stderr, foundation_alignment,
+                foundation_tree,
+                exclude_id_list,
                 extension_trees_otu_map, extension_trees_taxonomy_file,
                 extension_trees_sequence_file, foundation_file,
                 ghost_tree_output_folder):
@@ -248,7 +254,7 @@ def hybrid_tree(graft_level, stderr, foundation_alignment, foundation_tree, excl
                                               extension_trees_sequence_file,
                                               foundation_file,
                                               ghost_tree_output_folder,
-                                              graft_level)
+                                              graft_level, foundation_taxonomy)
 
     if stderr:
         logfile = open(ghost_tree_output_folder + "/ghost_tree_log.txt", "w")
