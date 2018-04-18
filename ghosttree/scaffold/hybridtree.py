@@ -73,10 +73,10 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
            type '--stderr')
     """
     global foundation_accession_genus_dic  # needs global assignment for flake8
+
     foundation_accession_genus_dic = {}
-    graft_letter = graft_level
-    graft_level_map = {'p': 2, 'c': 3, 'o': 4, 'f': 5, 'g': 6}
-    graft_level = graft_level_map[graft_letter]
+
+    graft_level, graft_letter = _graft_functions(graft_level)
 
     process = subprocess.Popen("muscle", shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -332,3 +332,11 @@ def _collapse(tax, level):
     tax = [x.strip() for x in tax.split(';')]
     taxa = tax[:level][-1].split('__')[1].capitalize()
     return taxa
+
+
+def _graft_functions(graft_level):
+    print(graft_level)
+    graft_letter = graft_level
+    graft_level_map = {'p': 2, 'c': 3, 'o': 4, 'f': 5, 'g': 6}
+    graft_level = graft_level_map[graft_letter]
+    return graft_level, graft_letter

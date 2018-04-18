@@ -13,6 +13,8 @@ import skbio
 from skbio import Sequence
 
 from ghosttree.scaffold.hybridtree import _make_nr_foundation_alignment
+from ghosttree.scaffold.hybridtree import _graft_functions
+from ghosttree.scaffold.hybridtree import _make_nr_foundation_newick
 from ghosttree.scaffold.hybridtree import _create_taxonomy_dict
 from ghosttree.scaffold.hybridtree import _make_mini_otu_files
 from ghosttree.scaffold.hybridtree import _extension_genus_accession_dict
@@ -55,11 +57,18 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
                                                self.graft_letter_g)
         self.assertEqual(list(result), [])
 
-    # def test_newick_file_few_extensions(self):
-    #     result = _make_nr_foundation_newick(self.foundation_newick,
-    #                                         self.extension_genus_dic_few)
-    #
-    #     print('result', result)
+    def test_newick_file_few_extensions(self):
+        result = _make_nr_foundation_newick(self.foundation_newick,
+                                            self.extension_genus_dic_few,
+                                            self.graft_letter_g,
+                                            self.foundation_taxonomy)
+        result = str(result)
+        trimmed_tree = '(CBB3:0.44621,PBB1:0.08710999999999999)0.801:0.14776;\n'
+        self.assertEqual(result, trimmed_tree)
+
+    def test_graft_functions(self):
+        result = _graft_functions(self.graft_letter_g)
+        self.assertEqual(result, (6, 'g'))
 
     def test_create_taxonomy_dic_many_genus(self):
 
@@ -69,7 +78,6 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
 
         result = _create_taxonomy_dict(self.extension_taxonomy,
                                        self.graft_level_6)
-        print('\n\n\nlalala', result)
         self.assertDictEqual(result, test)
 
     def test_create_taxonomy_dic_none(self):
