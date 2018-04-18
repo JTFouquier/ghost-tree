@@ -143,6 +143,7 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
         mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
                                   into=skbio.TreeNode)
         node.extend(mini_tree.root_at_midpoint().children[:])
+    print('GRAFT LEVEL: ', graft_letter)
     print(foundation_tree.ascii_art())
     shutil.rmtree("tmp")
     ghost_tree_nwk = open(ghost_tree_fp + "/ghost_tree.nwk", "w")
@@ -243,12 +244,13 @@ def _make_nr_foundation_newick(foundation_fh,
             splitline = line.split('\t')
             accession = splitline[0].strip()
             foundation_taxonomy = splitline[1].strip()
-
             for graft_taxa in all_genus_list:
-                if_case = (re.search(";" + graft_taxa + ";",
+                if_case = (re.search(";" + graft_taxa.lower() + ";",
                                      foundation_taxonomy.lower()) or
-                           re.search(graft_letter + "__" + graft_taxa + ";",
-                                     foundation_taxonomy))
+                           re.search(graft_letter + "__" + graft_taxa.lower() + ";",
+                                     foundation_taxonomy.lower()) or
+                           re.search(";" + graft_taxa.lower(),
+                                     foundation_taxonomy.lower()))
 
                 if if_case:
                     all_genus_list.remove(graft_taxa)
@@ -270,8 +272,8 @@ def _make_nr_foundation_alignment(foundation_fh,
 
             if_case = (re.search(";" + i + ";", seq.metadata['description']) or
                        re.search(graft_letter + "__" + i + ";",
-                                 seq.metadata['description']))
-
+                                 seq.metadata['description']) or
+                       re.search(";" + i, seq.metadata['description']))
             if if_case:
                 all_genus_list.remove(i)
                 foundation_accession_genus_dic[seq.metadata['id']] = i
