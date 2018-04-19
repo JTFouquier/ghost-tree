@@ -63,7 +63,8 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
                                             self.graft_letter_g,
                                             self.foundation_taxonomy)
         result = str(result)
-        trimmed_tree = '(CBB3:0.44621,PBB1:0.08710999999999999)0.801:0.14776;\n'
+        trimmed_tree = '(CBB3:0.44621,PBB1:0.08710999999999999)' \
+                       '0.801:0.14776;\n'
         self.assertEqual(result, trimmed_tree)
 
     def test_graft_functions(self):
@@ -82,8 +83,7 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
 
     def test_create_taxonomy_dic_none(self):
         with self.assertRaises(ValueError):
-            list(_create_taxonomy_dict(self.extension_taxonomy_none,
-                                       9))
+            list(_create_taxonomy_dict(self.extension_taxonomy_none, 9))
 
     def test_make_mini_otu_files(self):
         os.system("mkdir tmp")

@@ -35,7 +35,8 @@ class TestFungiFromFasta(unittest.TestCase):
                                   self.accession,
                                   self.taxonomy_with_fungi)
         self.assertEqual(list(result),
-                         [Sequence("ATCG", metadata={'id': "AB21", 'description': "Fungi"})])
+                         [Sequence("ATCG", metadata={'id': "AB21",
+                                                     'description': "Fungi"})])
 
     def test_fasta_with_many_fungi(self):
         result = fungi_from_fasta(self.fasta_many_fungi,

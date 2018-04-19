@@ -9,6 +9,7 @@ import re
 import os
 import shutil
 import subprocess
+import sys
 
 import skbio
 import pandas as pd
@@ -57,10 +58,16 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
         accession numbers are the same as in the otu_file_fh and
         extension_taxonomy_fh.
 
-    foundation_alignment_fh : filehandle
-        File containing pre-aligned sequences from a genetic marker database
-        in .fasta format. This file refers to the "foundation" of the
-        ghost-tree. Contains accession numbers and taxonomy labels.
+    foundation_fh : filehandle
+        File containing EITHER pre-aligned sequences from a genetic marker
+        database in .fasta format OR a newick tree. This file refers to the
+        "foundation" of the ghost-tree.
+
+        .fasta contains accession numbers *and* taxonomy labels.
+
+        .nwk tree is a tree with accession numbers. MUST supply a foundation
+        taxonomy if using a tree as a foundation. Pass this via the
+        --foundation-taxonomy option. see --help for details
 
     ghost_tree_fp : folder
         Output folder contains files including:
@@ -100,6 +107,10 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     sniffer_results = skbio.io.sniff(foundation_fh)[0]
 
     if sniffer_results == 'newick':
+        if foundation_taxonomy is None:
+            sys.exit("ghost-tree error: You must provide a foundation "
+                     "taxonomy if using a foundation tree. Pass the taxonomy "
+                     "file using the '--foundation-taxonomy' flag.")
         foundation_tree = \
             _make_nr_foundation_newick(foundation_fh,
                                        extension_genus_accession_list_dic,
@@ -144,8 +155,8 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
         mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
                                   into=skbio.TreeNode)
         node.extend(mini_tree.root_at_midpoint().children[:])
-    print('GRAFT LEVEL: ', graft_letter)
-    print(foundation_tree.ascii_art())
+    # print('GRAFT LEVEL: ', graft_letter)
+    # print(foundation_tree.ascii_art())
     shutil.rmtree("tmp")
     ghost_tree_nwk = open(ghost_tree_fp + "/ghost_tree.nwk", "w")
     ghost_tree_nwk.write(str(foundation_tree))
@@ -246,8 +257,8 @@ def _make_nr_foundation_newick(foundation_fh,
         for graft_taxa in all_genus_list:
             if_case = (re.search(";" + graft_taxa.lower() + ";",
                                  foundation_taxonomy.lower()) or
-                       re.search(graft_letter + "__" + graft_taxa.lower() + ";",
-                                 foundation_taxonomy.lower()) or
+                       re.search(graft_letter + "__" + graft_taxa.lower() +
+                                 ";", foundation_taxonomy.lower()) or
                        re.search(";" + graft_taxa.lower(),
                                  foundation_taxonomy.lower()))
 
@@ -335,7 +346,6 @@ def _collapse(tax, level):
 
 
 def _graft_functions(graft_level):
-    print(graft_level)
     graft_letter = graft_level
     graft_level_map = {'p': 2, 'c': 3, 'o': 4, 'f': 5, 'g': 6}
     graft_level = graft_level_map[graft_letter]
