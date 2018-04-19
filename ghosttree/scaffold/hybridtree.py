@@ -7,9 +7,9 @@
 # ----------------------------------------------------------------------------
 import re
 import os
-import shutil
 import subprocess
 import sys
+import tempfile
 
 import skbio
 import pandas as pd
@@ -98,7 +98,6 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
     if re.search("command not found", str(std_error)):
         print("fasttree, phylogenetic tree builder, is not found. "
               "Is it installed? Is it in your path?")
-    os.mkdir("tmp")
     os.mkdir(ghost_tree_fp)
     extension_genus_accession_list_dic = \
         _extension_genus_accession_dict(otu_file_fh, extension_taxonomy_fh,
@@ -132,32 +131,34 @@ def extensions_onto_foundation(otu_file_fh, extension_taxonomy_fh,
 
     seqs = list(skbio.io.read(extension_seq_fh, format='fasta'))
     all_std_error = ''
-    for node in foundation_tree.tips():
-        key_node = node.name
-        key_node = foundation_accession_genus_dic[key_node]
-        _make_mini_otu_files(key_node, extension_genus_accession_list_dic,
-                             seqs)
-        process = subprocess.Popen("muscle -in tmp/mini_seq_gt.fasta" +
-                                   " -out" +
-                                   " tmp/mini_alignment_gt.fasta -quiet" +
-                                   " -maxiters 2 -diags1", shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        std_output, std_error = process.communicate()
-        process = subprocess.Popen("fasttree -nt -quiet" +
-                                   " tmp/mini_alignment_gt.fasta >" +
-                                   " tmp/mini_tree_gt.nwk", shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        std_output, std_error = process.communicate()
-        all_std_error += "FastTree warnings for genus " + key_node + \
-                         " are:\n" + str(std_error) + "\n"
-        mini_tree = skbio.io.read("tmp/mini_tree_gt.nwk", format='newick',
-                                  into=skbio.TreeNode)
-        node.extend(mini_tree.root_at_midpoint().children[:])
+
+    with tempfile.TemporaryDirectory() as tmp:
+
+        for node in foundation_tree.tips():
+            key_node = node.name
+            key_node = foundation_accession_genus_dic[key_node]
+            _make_mini_otu_files(key_node, extension_genus_accession_list_dic,
+                                 seqs, tmp)
+            process = subprocess.Popen("muscle -in " + tmp +
+                                       "/mini_seq_gt.fasta -out " + tmp +
+                                       "/mini_alignment_gt.fasta -quiet" +
+                                       " -maxiters 2 -diags1", shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            std_output, std_error = process.communicate()
+            process = subprocess.Popen("fasttree -nt -quiet " +
+                                       tmp + "/mini_alignment_gt.fasta >" +
+                                       tmp + "/mini_tree_gt.nwk", shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            std_output, std_error = process.communicate()
+            all_std_error += "FastTree warnings for genus " + key_node + \
+                             " are:\n" + str(std_error) + "\n"
+            mini_tree = skbio.io.read(tmp + "/mini_tree_gt.nwk",
+                                      format='newick', into=skbio.TreeNode)
+            node.extend(mini_tree.root_at_midpoint().children[:])
     # print('GRAFT LEVEL: ', graft_letter)
     # print(foundation_tree.ascii_art())
-    shutil.rmtree("tmp")
     ghost_tree_nwk = open(ghost_tree_fp + "/ghost_tree.nwk", "w")
     ghost_tree_nwk.write(str(foundation_tree))
     ghost_tree_nwk.close()
@@ -175,10 +176,11 @@ def _make_accession_id_file(ghost_tree_fp):
     output.close()
 
 
-def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs):
+def _make_mini_otu_files(key_node, extension_genus_accession_list_dic, seqs,
+                         tmp):
     keep = extension_genus_accession_list_dic[key_node]
 
-    output_file = open("tmp/mini_seq_gt.fasta", "w")
+    output_file = open(tmp + "/mini_seq_gt.fasta", "w")
 
     for seq in seqs:
         if seq.metadata['id'] in keep:

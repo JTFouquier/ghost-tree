@@ -8,6 +8,7 @@
 import unittest
 import os
 from io import StringIO
+import tempfile
 
 import skbio
 from skbio import Sequence
@@ -90,12 +91,13 @@ class TestScaffoldExtensionsIntofoundation(unittest.TestCase):
         extension_seqs = list(skbio.io.read(self.extension_seqs,
                                             format='fasta'))
 
-        _make_mini_otu_files(self.key_node,
-                             self.extension_genus_dic_few,
-                             extension_seqs)
+        with tempfile.TemporaryDirectory() as tmp:
+            _make_mini_otu_files(self.key_node,
+                                 self.extension_genus_dic_few,
+                                 extension_seqs, tmp)
 
-        result = str(list(skbio.io.read('tmp/mini_seq_gt.fasta',
-                                        format='fasta'))[0])
+            result = str(list(skbio.io.read(tmp + "/mini_seq_gt.fasta",
+                                            format='fasta'))[0])
 
         os.system("rm -r tmp")
         self.assertEqual(result, 'TTAAAAAA')
