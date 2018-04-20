@@ -19,6 +19,14 @@ files available here
 
 The most recent ghost-trees we've created are in our tree repository.
 
+If you use ghost-tree in published research, please cite our `software 
+publication in Microbiome <https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-016-0153-6>`_. Thank you!
+
+J. Fouquier, J.R. Rideout, E. Bolyen, J. Chase, A. Shiffer, D. McDonald, 
+R. Knight, J.G. Caporaso, and S.T. Kelley. ghost-tree: creating hybrid-gene 
+phylogenetic trees for diversity analysis. Microbiome. 
+(February 2016) DOI: 10.1186/s40168-016-0153-6
+
 Using ghost-tree.nwk files for your analyses:
 =============================================
 
@@ -52,10 +60,6 @@ Use the required arguments in `filter_otus_from_otu_table.py <http://qiime.org/s
 You should then have your filtered .biom table, a ghost-tree.nwk, and a mapping
 file, which will then allow you to use `beta_diversity_through_plots.py <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
 in QIIME.
-
-If you had any trouble, please email jennietf@gmail.com.
-I am also interested in improving documentation, so please let me know if you
-find errors or have suggestions! Thank you!
 
 Developers:
 ===========
@@ -97,7 +101,15 @@ using the command line tool, see our `ghost-tree .ipynb workflow <https://github
 
 This project is currently under active development and may evolve without notice. So, please
 update your local repository, and check here for changes. If you're interested in
-contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`__.
+contributing, please contact `@JTFouquier <https://github.com/JTFouquier>`_.
+
+Help:
+=====
+
+If you have any trouble, please email jennietf@gmail.com. I am happy to help! :)
+
+I am also interested in improving documentation, so please let me know if you
+find errors or have suggestions!
 
 .. |Build Status| image:: https://travis-ci.org/JTFouquier/ghost-tree.svg?branch=master
    :target: https://travis-ci.org/JTFouquier/ghost-tree
