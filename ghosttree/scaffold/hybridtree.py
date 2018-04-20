@@ -229,6 +229,9 @@ def _create_taxonomy_dict(extension_taxonomy_fh, graft_level):
     accession_id_list = []
     taxonomy_list = []
     for line in extension_taxonomy_fh:
+        # Qiime2 specific
+        if re.search("Feature ID", line):
+            continue
         splitline = line.split('\t')
         accession = splitline[0].strip()
         taxonomy_line = splitline[1].strip()
