@@ -169,21 +169,17 @@ def scaffold():
     pass
 
 
-@scaffold.command("hybrid-tree")
+@scaffold.command("hybrid-tree-foundation-alignment")
 @click.argument("extension-trees-otu-map", type=click.File("U"))
 @click.argument("extension-trees-taxonomy-file", type=click.File("U"))
 @click.argument("extension-trees-sequence-file", type=click.File("U"))
-@click.argument("foundation-file", type=click.File("U"))
+@click.argument("foundation-alignment-file", type=click.File("U"))
 @click.argument("ghost-tree-output-folder", type=click.STRING)
 @click.option('--graft-level', type=click.Choice(['p', 'c', 'o', 'f', 'g']),
               default='g',
               help="Taxonomic level to graft extensions to foundation. "
                    "Default is g (genus). p=phylum, c=class, o=order, "
                    "f=family.")
-@click.option('-i', '--foundation-taxonomy', type=click.File('U'),
-              help="If you use newick tree for your foundation, this is "
-                   "REQUIRED. This is a tab-delimited accession ID and "
-                   "taxonomy line file.")
 @click.option("--stderr", is_flag=True, help="Saves error log file "
                                              "(optional)")
 @click.option("--save-foundation-alignment", is_flag=True,
@@ -192,12 +188,14 @@ def scaffold():
               help="Saves foundation phylogenetic tree file (optional)")
 @click.option("--exclude-id-list", is_flag=True,
               help="Will not save accession id file (optional)")
-def hybrid_tree(graft_level, foundation_taxonomy, stderr,
+def hybrid_tree(graft_level, stderr,
                 save_foundation_alignment, save_foundation_tree,
                 exclude_id_list, extension_trees_otu_map,
                 extension_trees_taxonomy_file, extension_trees_sequence_file,
-                foundation_file, ghost_tree_output_folder):
-    """Combines two genetic databases into one phylogenetic tree and is the
+                foundation_alignment_file, ghost_tree_output_folder):
+    """Make hybrid-tree using foundation alignment.
+
+    Combines two genetic databases into one phylogenetic tree and is the
     final command in ghost-tree.
 
     Some genetic databases provide finer taxonomic resolution, but high
@@ -238,16 +236,14 @@ def hybrid_tree(graft_level, foundation_taxonomy, stderr,
     accession numbers are the same as in the extension-trees-otu-map and
     extension-trees-taxonomy-file.
 
-    4) foundation-file:
-    File containing EITHER pre-aligned sequences from a genetic marker
-    database in .fasta format OR a newick tree. This file refers to the
-    "foundation" of the ghost-tree.
+    4) foundation-alignment-file:
+    File containing aligned sequences from a genetic marker database in .fasta
+    format. This file refers to the "foundation" of the ghost-tree.
 
     .fasta contains accession numbers *and* taxonomy labels.
 
-    .nwk tree is a tree with accession numbers. MUST supply a foundation
-    taxonomy if using a tree as a foundation. Pass this via the
-    --foundation-taxonomy option. see --help for details
+    Note: if you would like to use a newick tree foundation, use the
+    hybrid-tree-foundation-tree command, also in the 'scaffold' command group.
 
     5) ghost-tree-output-folder:
     Output folder contains files including:
@@ -265,9 +261,112 @@ def hybrid_tree(graft_level, foundation_taxonomy, stderr,
     _, std_error = extensions_onto_foundation(extension_trees_otu_map,
                                               extension_trees_taxonomy_file,
                                               extension_trees_sequence_file,
-                                              foundation_file,
+                                              foundation_alignment_file,
                                               ghost_tree_output_folder,
-                                              graft_level, foundation_taxonomy)
+                                              graft_level, None)
+
+    _script_helper(stderr, save_foundation_alignment, save_foundation_tree,
+                   exclude_id_list, ghost_tree_output_folder)
+
+
+@scaffold.command("hybrid-tree-foundation-tree")
+@click.argument("extension-trees-otu-map", type=click.File("U"))
+@click.argument("extension-trees-taxonomy-file", type=click.File("U"))
+@click.argument("extension-trees-sequence-file", type=click.File("U"))
+@click.argument("foundation-tree-file", type=click.File("U"))
+@click.argument('foundation-taxonomy-file', type=click.File('U'))
+@click.argument("ghost-tree-output-folder", type=click.STRING)
+@click.option('--graft-level', type=click.Choice(['p', 'c', 'o', 'f', 'g']),
+              default='g',
+              help="Taxonomic level to graft extensions to foundation. "
+                   "Default is g (genus). p=phylum, c=class, o=order, "
+                   "f=family.")
+@click.option("--stderr", is_flag=True, help="Saves error log file "
+                                             "(optional)")
+@click.option("--exclude-id-list", is_flag=True,
+              help="Will not save accession id file (optional)")
+def hybrid_tree(graft_level, foundation_taxonomy_file, stderr,
+                exclude_id_list, extension_trees_otu_map,
+                extension_trees_taxonomy_file, extension_trees_sequence_file,
+                foundation_tree_file, ghost_tree_output_folder):
+    """Make hybrid-tree using foundation tree. Combines two genetic
+    databases into one phylogenetic tree using a phylogenetic tree
+    (newick format) as the foundation and is the final command in ghost-tree.
+
+    Some genetic databases provide finer taxonomic resolution, but high
+    sequence variability causes poor multiple sequence alignments
+    (we consider these "extension trees").
+
+    Other databases provide high quality phylogenetic information (hence they
+    can be used as the "foundation" tree), but they provide poor quality
+    taxonomic resolution.
+
+    The output file is one phylogenetic tree in .nwk format, which has the
+    benefits of both databases. This allows sequencing to be performed using
+    only one primer set, the "extension trees" primer set.
+
+    Arguments:
+
+    1) extension-trees-otu-map:
+    Tab-delimited text file containing OTU clusters in rows containing
+    accession numbers only. Format can be 1) where the accession number
+    is in the first column with only one column or 2) it can contain
+    accession numbers clustered in tab-delimited rows containing more
+    accession numbers, which are part of that OTU cluster (as in output of
+    "ghost-tree group-extensions"). This file refers to the "extension
+    trees". File references to sequence reads or sample numbers/names are
+    not valid here. This is NOT the same as an OTU .biom table.
+
+    2) extension-trees-taxonomy-file:
+    Tab-delimited text file related to "extension trees" wih the 1st
+    column being an accession number (same accession numbers in
+    extension-trees-otu-map and extension-trees-taxonomy-file) and the 2nd
+    column is the taxonomy ranking in the following format:
+    k__Fungi;p__Basidiomycota;c__Agaricomycetes;o__Sebacinales;
+    f__Sebacinaceae;g__unidentified;s__Sebacina
+
+    3) extension-trees-sequence-file:
+    The .fasta formated sequences for the "extension trees" genetic
+    dataset. Sequence identifiers are the accession numbers. These
+    accession numbers are the same as in the extension-trees-otu-map and
+    extension-trees-taxonomy-file.
+
+    4) foundation-tree-file:
+    .nwk tree is a tree with accession numbers. This file refers to the
+    "foundation" of the ghost-tree.
+
+    5) foundation-taxonomy-file:
+    Tab separated taxonomy file containing accession IDs and taxonomy for
+    the foundation phylogenetic tree (newick format).
+
+    6) ghost-tree-output-folder:
+    Output folder contains files including:
+
+    a) The Newick formatted ghost-tree, which is the final output of the
+    ghost-tree tool. This is a phylogenetic tree designed for
+    downstream diversity analyses.
+
+    b) Accession IDs from the ghost-tree.nwk file that you can use for
+    downstream analyses tools
+
+    c) log error file (this is an optional file that you can have if you
+    type '--stderr')
+    """
+    _, std_error = extensions_onto_foundation(extension_trees_otu_map,
+                                              extension_trees_taxonomy_file,
+                                              extension_trees_sequence_file,
+                                              foundation_tree_file,
+                                              ghost_tree_output_folder,
+                                              graft_level,
+                                              foundation_taxonomy_file)
+    save_foundation_alignment = None
+    save_foundation_tree = None
+    _script_helper(stderr, save_foundation_alignment, save_foundation_tree,
+                   exclude_id_list, ghost_tree_output_folder)
+
+
+def _script_helper(stderr, save_foundation_alignment, save_foundation_tree,
+                   exclude_id_list, ghost_tree_output_folder):
 
     if stderr:
         logfile = open(ghost_tree_output_folder + "/ghost_tree_log.txt", "w")
