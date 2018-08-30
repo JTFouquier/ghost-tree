@@ -2,17 +2,24 @@
 # Check on http://lint.travis-ci.org/ after modifying it!  Originally
 # modified from https://gist.github.com/dan-blanchard/7045057
 language: python
-env:
-  - PYTHON_VERSION=3.5
+python:
+  - "3.5"
+  - "3.6"
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.3-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda3/bin:$PATH
+  - conda config --system --set always_yes --set changeps1 no
   # Update conda itself
-  - conda update --yes conda
+  - conda update conda
+  - conda config --system --add channels defaults
+  - conda config --system --add channels conda-forge
+  - conda config --system --add channels bioconda
 install:
-  - conda create --yes -n env_name python=$PYTHON_VERSION pip flake8 nose scikit-bio
+  - conda create --yes -n env_name python=$TRAVIS_PYTHON_VERSION
+          pip flake8 nose
+          scikit-bio fasttree muscle sumaclust click
   - source activate env_name
   - pip install coveralls
   - pip install .
