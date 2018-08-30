@@ -10,7 +10,7 @@ before_install:
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda3/bin:$PATH
-  - conda config --system --set always_yes --set changeps1 no
+  - conda config --system --set always_yes yes --set changeps1 no
   # Update conda itself
   - conda update conda
   - conda config --system --add channels defaults
