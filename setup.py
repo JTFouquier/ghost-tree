@@ -41,7 +41,7 @@ setup(name='ghost-tree',
       test_suite='nose.collector',
       packages=find_packages(),
       scripts=glob("scripts/*"),
-      install_requires=['scipy>=0.16.1', 'scikit-bio >=0.5.1', 'click >= 4.0'],
+      install_requires=['scipy >= 0.16.1', 'scikit-bio >=0.5.1', 'click >= 4.0'],
       extras_require={'test': ["nose >= 0.10.1", "pep8", "flake8"]},
       classifiers=classifiers
       )
