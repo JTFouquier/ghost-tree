@@ -3,6 +3,7 @@
 # modified from https://gist.github.com/dan-blanchard/7045057
 language: python
 python:
+  - "3.4"
   - "3.5"
   - "3.6"
 before_install:
