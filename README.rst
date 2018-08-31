@@ -3,7 +3,6 @@ ghost-tree
 
 |Build Status| |Coverage Status|
 
-
 ghost-tree is a bioinformatics tool that combines sequence data from two
 genetic marker databases into one phylogenetic tree that can be used for
 diversity analyses. One database is used as a "foundation tree" because it
@@ -17,7 +16,13 @@ contains pre-built reference phylogenetic trees for the `UNITE QIIME reference
 files available here
 <https://unite.ut.ee/repository.php>`_.
 
-The most recent ghost-trees we've created are in our tree repository.
+.. image:: https://github.com/JTFouquier/q2-ghost-tree/blob/master/images/Picture1.png
+Fig 1. Saliva (blue) and restroom (red) ITS sequences compared using binary jaccard, 
+unweighted UniFrac with Muscle aligned ITS sequences, and unweighted UniFrac with a 
+ghost tree created from ITS and 18S sequences.
+
+The most recent ghost-trees we've created are in our tree repository found
+`here <https://github.com/JTFouquier/ghost-tree-trees>`_.
 
 If you use ghost-tree in published research, please cite our `software 
 publication in Microbiome <https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-016-0153-6>`_. Thank you!
