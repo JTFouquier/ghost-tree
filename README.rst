@@ -9,8 +9,10 @@ diversity analyses. One database is used as a "foundation tree" because it
 provides better phylogeny across all phyla, and the other database provides
 finer taxonomic resolution.
 
-For application to ITS, you don't need to install ghost-tree but can use our
-pre-built trees. The tree that you download needs to match the UNITE database
+For application to ITS, you don't need to install *ghost-tree* but can use our
+pre-built trees as the reference tree for your phylogenetic diversity analysis.
+
+The tree that you download needs to match the UNITE database
 that you used (or plan to use) for your ITS analyses. The most recent
 ghost trees we've created are in our
 `tree repository <https://github.com/JTFouquier/ghost-tree-trees>`_. This
@@ -33,12 +35,13 @@ phylogenetic trees for diversity analysis. Microbiome.
 Using ghost-tree.nwk files for your analyses:
 =============================================
 
-QIIME 2 Directions are coming soon!
-You should be using Q2 for analysis now.
+## QIIME 2
+
+Directions are coming soon! You should be using Q2 for analysis now.
 For now, please see `the q2-ghost-tree community tutorial
 <https://github.com/JTFouquier/q2-ghost-tree/blob/master/QIIME2_community_tutorial.md>`_
 
-QIIME 1 Directions:
+## QIIME 1:
 *please note that QIIME 1 is no longer officially supported. You should be
 using QIIME 2 now*
 
@@ -80,12 +83,12 @@ file, which will then allow you to use `beta_diversity_through_plots.py
 <http://qiime.org/scripts/beta_diversity_through_plots.html>`_
 in QIIME.
 
-Developers:
-===========
+Developers or to use ghost-tree via command line:
+=================================================
 
 If you are an experienced developer or are interested in trying out the
 ghost-tree tool via command line, then you will need to follow the following
-directions.
+directions to start using *ghost-tree*.
 
 ghost-tree requires two external software tools to build a hybrid-tree or
 the "ghost-tree":
@@ -116,7 +119,7 @@ You will then need to "clone" the ghost-tree repository to download
 all of the necessary files. You can then find the `setup.py` and install it via
 "pip install -e ."
 
-Typing the command `ghost-tree` will then display the ghost-tree help page
+Typing the command `ghost-tree` will then display the *ghost-tree* help page
 that provides command and subcommand help documentation.
 
 You should also check out our "ipython notebook".  See the `ipynb install
