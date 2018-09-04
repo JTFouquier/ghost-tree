@@ -10,14 +10,16 @@
 from setuptools import find_packages, setup
 from glob import glob
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 classes = """
     Development Status :: 1 - Planning
     License :: OSI Approved :: BSD License
     Topic :: Scientific/Engineering
     Topic :: Scientific/Engineering :: Bio-Informatics
+    Programming Language :: Python :: 3.4
     Programming Language :: Python :: 3.5
+    Programming Language :: Python :: 3.6
     Operating System :: Unix
     Operating System :: POSIX
     Operating System :: MacOS :: MacOS X

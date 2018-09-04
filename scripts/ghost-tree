@@ -7,6 +7,10 @@
 # The full license is in the LICENSE file, distributed with this software.
 # ----------------------------------------------------------------------------
 
+# Avoid importing QtCore via skbio importing matplotlib by
+# specifying AGG as matplotlib backend:
+import matplotlib
+matplotlib.use("AGG")
 
 import click
 import skbio
