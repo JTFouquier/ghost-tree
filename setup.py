@@ -10,7 +10,7 @@
 from setuptools import find_packages, setup
 from glob import glob
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 classes = """
     Development Status :: 1 - Planning
