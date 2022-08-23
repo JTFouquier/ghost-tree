@@ -1,7 +1,9 @@
+There have been a few reports in 2022 of incompatability with ghost-tree and newer releases of UNITE databases. As I have moved into a different role I am no longer actively maintaining this project. 
+
+If anyone is interested in identifying the issues and creating a fix, you are welcome to. I will gladly give you a mention here. Thank you. 
+
 ghost-tree
 ==========
-
-|Build Status| |Coverage Status|
 
 ghost-tree is a bioinformatics tool that combines sequence data from two
 genetic marker databases into one phylogenetic tree that can be used for
